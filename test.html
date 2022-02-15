@@ -1,0 +1,58 @@
+<!doctype html5>
+<html>
+<head>
+</head>
+<body>
+  Worker List:
+  <ul id="worker-list">
+  </ul>
+  <script>
+    const tokenQueueURL = 'http://194.8.1.235:9000/api/workers';
+
+async function tokenQueueList() {
+  const response = await fetch(tokenQueueURL);
+  if(!response.ok) {
+    return;
+  }
+  const result = await response.json();
+  return result;
+}
+
+async function translate(text) {
+  const translate_request = {
+    text: [['Šodien spīd saule.']],
+    target_lang: 'en',
+    source_lang: 'lv',
+    max_length: 1000,
+    perform_sentence_splitting: true,
+  };
+
+  const acceptJSONHeaders = { 'Accept': 'application/json' };
+  const response = await fetch('http://194.8.1.235:8000/translate', { method: 'POST', body: translate_request, headers: acceptJSONHeaders });
+
+  const result = await response.json();
+
+  return result;
+}
+
+async function main() {
+  const workers = await tokenQueueList();
+
+  const workerListUL = document.querySelector('#worker-list');
+  for(const worker of workers) {
+    const workerLI = document.createElement('li');
+    workerLI.innerHTML = JSON.stringify(worker, undefined, 2);
+    workerListUL.appendChild(workerLI);
+  }
+
+  // console.log('Token Queue List:', workers);
+
+  // const translateResult = await translate();
+  // console.log('Translated:', translateResult);
+}
+
+main();
+
+  </script>
+</body>
+</html>
