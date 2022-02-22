@@ -302,7 +302,7 @@
         const formData = new FormData();
         formData.append(file.name, file);
         const acceptJSONHeaders = { 'Accept': 'application/json' };
-        const response = await fetch(`/api/upload`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+        const response = await fetch(`https://selma.ailab.lv/api/upload`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
         const result = await response.json();
         const { transcript, translated } = result;
 
@@ -329,7 +329,7 @@
         const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
         appMT.load({ transcript: {} });
         spinner.style.display = 'inline-block';
-        const response = await fetch(`/api/translate?src=${sourceLang}&dst=${targetLang}`, { method: 'POST', body: JSON.stringify(app.transcript), headers: jsonHeaders });
+        const response = await fetch(`https://selma.ailab.lv/api/translate?src=${sourceLang}&dst=${targetLang}`, { method: 'POST', body: JSON.stringify(app.transcript), headers: jsonHeaders });
         const result = await response.json();
         spinner.style.display = 'none';
         // console.log('translated:', result);
