@@ -97,6 +97,8 @@
           </ul>
         </div>
       </div>
+      <div id="guid">
+      </div>
     </div>
     <div style="position: absolute; left: 100px; right: 0px; top: 0px; bottom: 0px">
     <div style="margin: 10px; position: relative">
@@ -289,6 +291,15 @@
     <div id="app-mt"></div>
     </div>
     <script type="module" defer>
+
+      // https://qawithexperts.com/article/javascript/generating-guiduuid-using-javascript-various-ways/372
+      function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      }
+
       import init from './dist/ruta.es.js';
 
       const app = init('#app');
@@ -299,6 +310,8 @@
         const fileSelector = document.querySelector('#file-selector')
         fileSelector.click();
       }
+
+      let guid = uuidv4();
 
       let file;
       let backendURL = '';
@@ -402,6 +415,7 @@
         // document.querySelector('#mt-dst-lang').addEventListener('change', targetLanguageChanged);
         document.querySelector('#transcribe').addEventListener('click', transcribe);
         document.querySelector('#translate').addEventListener('click', translate);
+        document.querySelector('#guid').innerHTML = guid;
       });
     </script>
     <style>
@@ -467,6 +481,11 @@
         position: relative;
         left: 8px;
         top: -6px;
+      }
+      #guid {
+        font-size: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
       }
     </style>
   </body>
