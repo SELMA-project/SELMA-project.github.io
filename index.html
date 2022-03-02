@@ -307,6 +307,12 @@
       const spinner = document.querySelector('#top-spinner')
 
       function uploadFile(event) {
+
+        if(file !== undefined) {
+          window.open('/', '_blank');
+          return;
+        }
+
         const fileSelector = document.querySelector('#file-selector')
         fileSelector.click();
       }
