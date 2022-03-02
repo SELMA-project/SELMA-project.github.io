@@ -106,7 +106,7 @@
       <button class="btn btn-outline-secondary" onclick="window.open('/', '_self')"><i class="bi bi-list-ul"></i></button>
       &nbsp;
       -->
-      <button class="btn btn-outline-secondary" id="upload-file-x">Publish<div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray"> ⬳ </div></button>
+      <button class="btn btn-outline-secondary" id="publish">Publish<div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray"> ⬳ </div></button>
       &nbsp;
       <button class="btn btn-outline-secondary" id="upload-file">UploadFleeting<div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray">Max 8 min., 10M/day</div></button>
       <input type="file" capture id="file-selector" style="display: none">
@@ -412,9 +412,39 @@
         // console.log('translated:', result);
         appMT.load({ transcript: result });
       }
+
+      async function publish(event) {
+        const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        const sourceLang = document.querySelector('#mt-src-lang').value;
+        const targetLang = document.querySelector('#mt-dst-lang').value;
+        let sourceText = '';
+        for(const p of app.transcript.paragraphs) {
+          for(const s of p.spans) {
+            sourceText += s.text;
+          }
+          sourceText += '\n';
+        }
+        let targetText = '';
+        for(const p of appMT.transcript.paragraphs) {
+          for(const s of p.spans) {
+            targetText += s.text;
+          }
+          targetText += '\n';
+        }
+        const body = { sourceLang, sourceText, targetLang, targetText, id: guid };
+        const response = await fetch(`${backendURL}/api/publish`, { method: 'POST', body: JSON.stringify(body), headers: jsonHeaders });
+        if(response.ok) {
+            window.open(`http://194.8.1.235:7789/?token=7654321#/documents/${guid}`, '_blank');
+        }
+        // console.log(response);
+        // const result = await response.json();
+        // console.log(result);
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         app.load({ audio: null, transcript: { paragraphs: [] } });
         document.querySelector('body').classList.remove('hidden-x');
+        document.querySelector('#publish').addEventListener('click', publish);
         document.querySelector('#upload-file').addEventListener('click', uploadFile);
         document.querySelector('#file-selector').addEventListener('change', fileSelected);
         // document.querySelector('#mt-src-lang').addEventListener('change', sourceLanguageChanged);
