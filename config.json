@@ -1,3 +1,4 @@
 {
-  "backend": "https://selma.ailab.lv"
+  "backend": "https://selma.ailab.lv",
+  "pinitree": "http://194.8.1.235:7789/?token=7654321"
 }

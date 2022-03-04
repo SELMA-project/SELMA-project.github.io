@@ -322,11 +322,13 @@
 
       let file;
       let backendURL = '';
+      let mediaPublished = false;
+      let conf = {};
 
       async function loadConfig() {
         const response = await fetch(`config.json`);
         if(response.ok) {
-          const conf = await response.json();
+          conf = await response.json();
           backendURL = conf.backend;
         }
       }
@@ -346,6 +348,8 @@
         if(!file) {
           return;
         }
+
+        mediaPublished = false;
 
         // if(blobURL && typeof(blobURL) === 'string' && blobURL.startsWith('blob:')) {
         //   URL.revokeObjectURL(blobURL);
@@ -435,11 +439,25 @@
         const body = { sourceLang, sourceText, targetLang, targetText, id: guid };
         const response = await fetch(`${backendURL}/api/publish`, { method: 'POST', body: JSON.stringify(body), headers: jsonHeaders });
         if(response.ok) {
-            window.open(`http://194.8.1.235:7789/?token=7654321#/documents/${guid}`, '_blank');
+            window.open((conf.pinitree || 'http://194.8.1.235:7789/?token=7654321') + `#/documents/${guid}`, '_blank');
         }
         // console.log(response);
         // const result = await response.json();
         // console.log(result);
+
+        if(!mediaPublished) {
+          const formData = new FormData();
+          formData.append('id', guid);
+          formData.append(file.name, file);
+          const acceptJSONHeaders = { 'Accept': 'application/json' };
+          const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+          console.log(response);
+          if(response.ok) {
+            mediaPublished = true;
+            // const result = await response.json();
+            // console.log(result);
+          }
+        }
       }
 
       document.addEventListener("DOMContentLoaded", () => {
