@@ -361,8 +361,8 @@
         spinner.style.display = 'inline-block';
         spinner.style.display = 'none';
 
-        app.load({ audio: null, transcript: {} });
-        appMT.load({ audio: null, transcript: {} });
+        app.load({ audio: null, transcript: { paragraphs: [] } });
+        appMT.load({ audio: null, transcript: { paragraphs: [] } });
 
         app.load({ audio: file });
         appMT.load({ audio: file });
@@ -391,7 +391,6 @@
         spinner.style.display = 'none';
 
         app.load({ transcript });
-        appMT.load({ transcript: translated });
       }
 
       // async function sourceLanguageChanged(event) {
@@ -423,18 +422,22 @@
         const sourceLang = document.querySelector('#mt-src-lang').value;
         const targetLang = document.querySelector('#mt-dst-lang').value;
         let sourceText = '';
-        for(const p of app.transcript.paragraphs) {
-          for(const s of p.spans) {
-            sourceText += s.text;
+        if(app.transcript.paragraphs) {
+          for(const p of app.transcript.paragraphs) {
+            for(const s of p.spans) {
+              sourceText += s.text;
+            }
+            sourceText += '\n';
           }
-          sourceText += '\n';
         }
         let targetText = '';
-        for(const p of appMT.transcript.paragraphs) {
-          for(const s of p.spans) {
-            targetText += s.text;
+        if(appMT.transcript.paragraphs) {
+          for(const p of appMT.transcript.paragraphs) {
+            for(const s of p.spans) {
+              targetText += s.text;
+            }
+            targetText += '\n';
           }
-          targetText += '\n';
         }
         const body = { sourceLang, sourceText, targetLang, targetText, id: guid };
         const response = await fetch(`${backendURL}/api/publish`, { method: 'POST', body: JSON.stringify(body), headers: jsonHeaders });
@@ -445,7 +448,7 @@
         // const result = await response.json();
         // console.log(result);
 
-        if(!mediaPublished) {
+        if(!mediaPublished && file) {
           const formData = new FormData();
           formData.append('id', guid);
           formData.append(file.name, file);
@@ -471,6 +474,8 @@
         document.querySelector('#transcribe').addEventListener('click', transcribe);
         document.querySelector('#translate').addEventListener('click', translate);
         document.querySelector('#guid').innerHTML = guid;
+        app.load({ audio: null, transcript: { paragraphs: [] } });
+        appMT.load({ audio: null, transcript: { paragraphs: [] } });
       });
     </script>
     <style>
