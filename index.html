@@ -394,6 +394,19 @@
 
         spinner.style.display = 'none';
 
+        // fix broken time code for 20s segmentation
+        let offset = 0;
+        let last = 0;
+        for(const p of transcript.paragraphs) {
+          for(const s of p.spans) {
+            if(s.time < last) {
+              offset += 20000;
+            }
+            last = s.time;
+            s.time += offset;
+          }
+        }
+
         app.load({ transcript });
       }
 
