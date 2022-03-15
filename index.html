@@ -208,7 +208,7 @@
         &nbsp;
         <button class="btn btn-outline-secondary" id="translate">TransLate</button>
         <button class="btn btn-outline-secondary" id="voiceover"
-          onclick="window.open('http://194.8.1.234:9923/', '_blank')">VoiceOver</button>
+          _onclick="window.open('http://194.8.1.234:9923/', '_blank')">VoiceOver</button>
         <button class="btn btn-outline-secondary" id="summary">Summary</button>
       </div>
       <style>
@@ -295,6 +295,7 @@
     <div id="app"></div>
     <div id="app-mt"></div>
     </div>
+    <audio id="voiceover-audio" style="display: hidden"></audio>
     <script type="module" defer>
 
       // https://qawithexperts.com/article/javascript/generating-guiduuid-using-javascript-various-ways/372
@@ -310,6 +311,8 @@
       const app = init('#app');
       const appMT = init('#app-mt');
       const spinner = document.querySelector('#top-spinner')
+
+      let voiceOverAudio, voiceOverVideo;
 
       function uploadFile(event) {
 
@@ -434,6 +437,188 @@
         appMT.load({ transcript: result });
       }
 
+      // https://github.com/pdeschen/pcm.js/blob/master/pcm.js
+      function u32ToArray(i) {
+        return Uint8Array.from([i&0xFF, (i>>8)&0xFF, (i>>16)&0xFF, (i>>24)&0xFF]);
+      }
+
+      function u16ToArray(i) {
+        return Uint8Array.from([i&0xFF, (i>>8)&0xFF]);
+      }
+
+      function buffer2wav(audioBuffer, duration) {
+        // fileSize
+        // 36 + SubChunk2Size, or more precisely:
+        //                      4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)
+        //                      This is the size of the rest of the chunk 
+        //                      following this number.  This is the size of the 
+        //                      entire file in bytes minus 8 bytes for the
+        //                      two fields not included in this count:
+        //                      ChunkID and ChunkSize.
+
+        const bitsPerSample = 16;
+        const numberOfChannels = audioBuffer.numberOfChannels;
+        const sampleRate = audioBuffer.sampleRate;
+        let sampleCount = audioBuffer.length;
+
+        if(duration > 0) {
+          sampleCount = duration * audioBuffer.sampleRate;
+        }
+
+        const ch = numberOfChannels; // 1;
+        const fmt = 1; //pcm
+        const srate = sampleRate;
+        // const bitsPerSample = sampleSize; // 16;
+        const byteRate = srate * ch * bitsPerSample/8; // == SampleRate * NumChannels * BitsPerSample/8
+        const blockAlign = ch * bitsPerSample/8; // == NumChannels * BitsPerSample/8 ; The number of bytes for one sample including all channels.
+        // if(!sampleCount) {
+        //   sampleCount = data.length / (bitsPerSample/8) / numberOfChannels;
+        // }
+        // I wonder what happens when this number isn't an integer?
+        const subchunk1Size = 16; // 16 for PCM.  This is the size of the rest of the Subchunk which follows this number.
+        const subchunk2Size = sampleCount * ch * bitsPerSample/8; // == NumSamples * NumChannels * BitsPerSample/8
+        const chunkSize = 4 + 8 + subchunk1Size + 8 + subchunk2Size; // 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)
+        // console.log(data.length, sampleCount, sampleCount*2)
+        // const dblob = new Blob(data);
+        const hblob = new Blob([
+          "RIFF", u32ToArray(chunkSize), "WAVE",
+          "fmt ", u32ToArray(subchunk1Size),
+          u16ToArray(fmt), u16ToArray(ch), u32ToArray(srate),
+          u32ToArray(byteRate),
+          u16ToArray(blockAlign),
+          u16ToArray(bitsPerSample),
+          "data", u32ToArray(subchunk2Size),
+          ], { type: '' });
+
+        const data = new Int16Array(sampleCount * numberOfChannels);  // only if bits per sample = 16
+
+        const channels = [];
+        for(let i = 0; i < numberOfChannels; i++) {
+          channels.push(audioBuffer.getChannelData(i));
+        }
+
+        for(let i = 0; i < sampleCount; i++) {
+          for(let j = 0; j < numberOfChannels; j++) {
+            data[i * numberOfChannels + j] = channels[j][i] * 0x8000;
+          }
+        }
+
+        const dblob = new Blob([data]);
+
+        const blob = new Blob([hblob, dblob], { type: 'audio/wave' })
+
+        return blob;
+      }
+
+      async function voiceover(event) {
+
+        spinner.style.display = 'inline-block';
+
+        const language = document.querySelector('#mt-dst-lang').value;
+        const headers = { 'Accept': 'audio/*', 'Content-Type': 'application/json' };
+
+        const fragments = [];
+
+        let textLength = 0;
+
+        for(const p of appMT.transcript.paragraphs) {
+          let text = '';
+          let start = 0;
+          let end = 0;
+          let duration = 0;
+          for(const s of p.spans) {
+            if(start === 0) {
+              start = s.time;// || textLength * 1000;
+            }
+            text += s.text;
+            // end = s.time !== undefined ? s.time + s.duration : text.length * 1000;
+            end = s.time + s.duration;
+          }
+          duration = end - start;
+          textLength += text.length;
+          const body = JSON.stringify({ text, language });
+          try {
+            const response = await fetch(`${backendURL}/api/voiceover`, { method: 'POST', body, headers });
+            if(!response.ok) {
+              spinner.style.display = 'none';
+              return;
+            }
+            const data = await response.blob();
+            fragments.push({ data, start, end, duration });
+          } catch(e) {
+            console.error('VoiceOver failed:', e);
+            spinner.style.display = 'none';
+            return;
+          }
+        }
+
+        const audioCtx = new AudioContext();
+
+        audioCtx.suspend();
+
+        let duration = fragments.length > 0 ? fragments[fragments.length - 1].end / 1000 : 0;
+
+        let noTimestamp = false;
+
+        if(!file && (duration === 0 || isNaN(duration))) {
+          duration = textLength;
+          noTimestamp = true;
+          // spinner.style.display = 'none';
+          // return;
+        }
+
+        const audioBuffer = file ? await audioCtx.decodeAudioData(await file.arrayBuffer()) : audioCtx.createBuffer(1, 22050 * duration, 22050);
+
+        const offlineAudioCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.sampleRate * audioBuffer.duration, audioBuffer.sampleRate);
+
+        const gainNode = offlineAudioCtx.createGain();
+
+        const trackSource = offlineAudioCtx.createBufferSource();
+        trackSource.buffer = audioBuffer;
+        trackSource.connect(gainNode);
+        gainNode.connect(offlineAudioCtx.destination);
+        // trackSource.connect(offlineAudioCtx.destination);
+        // gainNode.gain.value = 0.5;
+        trackSource.start(0);
+
+        let timeCode = 1;
+
+        for(const fragment of fragments) {
+          const audioBuffer = await audioCtx.decodeAudioData(await fragment.data.arrayBuffer());
+          const nextTimestamp = timeCode + audioBuffer.duration;
+          const trackSource = offlineAudioCtx.createBufferSource();
+          trackSource.buffer = audioBuffer;
+          trackSource.connect(offlineAudioCtx.destination);
+          const start = noTimestamp ? timeCode : fragment.start / 1000;
+          const end = noTimestamp ? nextTimestamp : fragment.end / 1000;
+          trackSource.start(start);
+          gainNode.gain.setValueAtTime(0.2, start);
+          gainNode.gain.setValueAtTime(1, end);
+          timeCode = nextTimestamp + 1;  // 1s in between
+        }
+
+        const renderedBuffer = await offlineAudioCtx.startRendering();
+
+        const blob = buffer2wav(renderedBuffer, noTimestamp ? timeCode : undefined);
+
+        const url = URL.createObjectURL(blob);
+
+        spinner.style.display = 'none';
+
+        // appMT.load({ audio: url });
+        voiceOverAudio.src = url;
+        voiceOverVideo.muted = true;
+        // voiceOverVideo.src = file;
+        // TODO: access waveform, time change from user event
+
+        // const video = appMT.$el.querySelector('video');
+        // const source = document.createElement('source')
+        // source.type = 'audio/wave';
+        // source.src = url;
+        // console.log(source)
+        // video.appendChild(source);
+      }
+
       async function publish(event) {
         const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
         const sourceLang = document.querySelector('#mt-src-lang').value;
@@ -480,6 +665,20 @@
         }
       }
 
+      function syncVideoAudio(video, audio) {
+        // https://github.com/rwaldron/mediagroup.js/blob/master/src/mediagroup.js
+        video.addEventListener('play', e => {
+          audio.currentTime = video.currentTime;
+          audio.play();
+        });
+        video.addEventListener('pause', e => {
+          audio.pause();
+        });
+        // video.addEventListener('timeupdate', e => {
+        // });
+        // requestAnimationFrame();
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         app.load({ audio: null, transcript: { paragraphs: [] } });
         document.querySelector('body').classList.remove('hidden-x');
@@ -490,9 +689,14 @@
         // document.querySelector('#mt-dst-lang').addEventListener('change', targetLanguageChanged);
         document.querySelector('#transcribe').addEventListener('click', transcribe);
         document.querySelector('#translate').addEventListener('click', translate);
+        document.querySelector('#voiceover').addEventListener('click', voiceover);
         document.querySelector('#guid').innerHTML = guid;
         app.load({ audio: null, transcript: { paragraphs: [] } });
         appMT.load({ audio: null, transcript: { paragraphs: [] } });
+        // setup voiceover audio
+        voiceOverAudio = document.querySelector('#voiceover-audio');
+        voiceOverVideo = appMT.$el.querySelector('video');
+        syncVideoAudio(voiceOverVideo, voiceOverAudio);
       });
     </script>
     <style>
@@ -549,7 +753,8 @@
         position: absolute;
         /* position: relative; */
         top: 4px;
-        left: 120px;
+        /* left: 120px; */
+        left: -44px;
         width: 34px;
         height: 34px;
       }
