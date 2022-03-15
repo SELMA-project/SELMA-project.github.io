@@ -162,7 +162,14 @@
           <option value="uk">Ukrainian</option>
           <option value="ur">Urdu</option>
         </select>
-        <span style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">ASR engine: Kaldi</span>
+        <span style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">
+          ASR Engine:
+          <select id="asr-engine" _style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">
+            <option value="asr" selected>Kaldi</option>
+            <option value="w2v">Wave2Vec</option>
+          </select>
+        </span>
+        <!-- <span style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">ASR engine: Kaldi</span> -->
         <!-- &horbar;&gt; -->
         &#10142;
         <select id="mt-dst-lang">
@@ -200,7 +207,14 @@
           <option value="uk">Ukrainian</option>
           <option value="ur">Urdu</option>
         </select>
-        <span style="display: inline-block; position: absolute; left: 176px; top: 30px; font-size: 8px">MT engine: M2M-100</span>
+        <span style="display: inline-block; position: absolute; left: 176px; top: 30px; font-size: 8px">
+          MT Engine:
+          <select id="mt-engine" _style="display: inline-block; position: absolute; left: 0px; top: 176px; font-size: 8px">
+            <option value="mt" selected>M2M-100</option>
+            <option value="huggingface">HuggingFace</option>
+          </select>
+        </span>
+        <!-- <span style="display: inline-block; position: absolute; left: 176px; top: 30px; font-size: 8px">MT engine: M2M-100</span> -->
         &nbsp;&nbsp;
         <button class="btn btn-outline-secondary" id="transcribe">TRanscribe</button>
         &nbsp;
@@ -284,7 +298,7 @@
         </div>
         -->
         <div class="resource">
-          <a href="http://194.8.1.235:9000/api/workers" target="_blank"><img class="icon" src="logo.png" _style="height: 46px; top: 0px; right: 10px; position: absolute"></a>
+          <a id="workers-url" href="/api/workers" target="_blank"><img class="icon" src="logo.png" _style="height: 46px; top: 0px; right: 10px; position: absolute"></a>
           <ul>
             <li><a href="http://194.8.1.235:7789/?token=7654321" target="_blank">Add NLP Image</a></li>
             <li><a href="http://selma-project.eu/" target="_blank">SELMA Project</a></li>
@@ -304,6 +318,13 @@
           var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
           return v.toString(16);
         });
+      }
+
+      function reset(id) {
+        const element = document.querySelector(`#${id}`);
+        if(element) {
+          element.classList.remove('invalid');
+        }
       }
 
       import init from './dist/ruta.es.js';
@@ -381,7 +402,16 @@
           return;
         }
 
+        const engine = document.querySelector('#asr-engine').value;
         const sourceLang = document.querySelector('#mt-src-lang').value;
+
+        if(!(await checkWorker(engine, sourceLang))) {
+          console.error(`invalid engine-language combination for engine '${engine}' and language '${sourceLang}'`);
+          document.querySelector('#asr-engine').classList.add('invalid');
+          return;
+        }
+
+        reset('asr-engine');
 
         spinner.style.display = 'inline-block';
 
@@ -391,7 +421,7 @@
         const formData = new FormData();
         formData.append(file.name, file);
         const acceptJSONHeaders = { 'Accept': 'application/json' };
-        const response = await fetch(`${backendURL}/api/upload?asr=${sourceLang}`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+        const response = await fetch(`${backendURL}/api/upload?asr=${sourceLang}&engine=${engine}`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
         const result = await response.json();
         const { transcript, translated } = result;
 
@@ -422,15 +452,26 @@
       // }
 
       async function translate(event) {
+
         // console.log('TRANSLATE', event);
         const sourceLang = document.querySelector('#mt-src-lang').value;
         const targetLang = document.querySelector('#mt-dst-lang').value;
+        const engine = document.querySelector('#mt-engine').value;
+        /*
+        if(!(await checkWorker(engine, sourceLang))) {
+          console.error(`invalid engine-language combination for engine '${engine}' and language '${sourceLang}'`);
+          document.querySelector('#mt-engine').classList.add('invalid');
+          return;
+        }
+        reset('mt-engine');
+        */
         // console.log('source language:', sourceLang);
         // console.log('target language:', targetLang);
-        const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
         appMT.load({ transcript: {} });
         spinner.style.display = 'inline-block';
-        const response = await fetch(`${backendURL}/api/translate?src=${sourceLang}&dst=${targetLang}`, { method: 'POST', body: JSON.stringify(app.transcript), headers: jsonHeaders });
+        const body = JSON.stringify(app.transcript);
+        const response = await fetch(`${backendURL}/api/translate?src=${sourceLang}&dst=${targetLang}&engine=${engine}`, { method: 'POST', body, headers });
         const result = await response.json();
         spinner.style.display = 'none';
         // console.log('translated:', result);
@@ -679,6 +720,20 @@
         // requestAnimationFrame();
       }
 
+      async function checkWorker(type, engine) {
+        const acceptJSONHeaders = { 'Accept': 'application/json' };
+        const response = await fetch(`${backendURL}/api/workers`, { headers: acceptJSONHeaders })
+        const workers = await response.json();
+
+        for(const worker of workers) {
+          if(worker.type === type && worker.engine === engine) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         app.load({ audio: null, transcript: { paragraphs: [] } });
         document.querySelector('body').classList.remove('hidden-x');
@@ -691,6 +746,9 @@
         document.querySelector('#translate').addEventListener('click', translate);
         document.querySelector('#voiceover').addEventListener('click', voiceover);
         document.querySelector('#guid').innerHTML = guid;
+
+        document.querySelector('#workers-url').href = `${backendURL}/api/workers`;
+
         app.load({ audio: null, transcript: { paragraphs: [] } });
         appMT.load({ audio: null, transcript: { paragraphs: [] } });
         // setup voiceover audio
@@ -768,6 +826,9 @@
         font-size: 8px;
         padding-left: 10px;
         padding-right: 10px;
+      }
+      .invalid {
+        color: red;
       }
     </style>
   </body>
