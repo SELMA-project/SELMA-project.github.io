@@ -361,8 +361,6 @@
         }
       }
 
-      loadConfig();
-
       async function fileSelected(event) {
         file = event.target.files[0];
         const status = document.querySelector('#status')
@@ -734,7 +732,8 @@
         return false;
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadConfig();
         app.load({ audio: null, transcript: { paragraphs: [] } });
         document.querySelector('body').classList.remove('hidden-x');
         document.querySelector('#publish').addEventListener('click', publish);
