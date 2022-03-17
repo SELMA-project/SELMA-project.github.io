@@ -334,6 +334,7 @@
       const spinner = document.querySelector('#top-spinner')
 
       let voiceOverAudio, voiceOverVideo;
+      let voiceOverBlob;
 
       function uploadFile(event) {
 
@@ -642,6 +643,8 @@
 
         const url = URL.createObjectURL(blob);
 
+        voiceOverBlob = blob;
+
         spinner.style.display = 'none';
 
         // appMT.load({ audio: url });
@@ -689,17 +692,77 @@
         // const result = await response.json();
         // console.log(result);
 
+        let mediaFileID, voiceOverFileID;
+
         if(!mediaPublished && file) {
           const formData = new FormData();
           formData.append('id', guid);
           formData.append(file.name, file);
           const acceptJSONHeaders = { 'Accept': 'application/json' };
           const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
-          console.log(response);
+          // console.log(response);
           if(response.ok) {
             mediaPublished = true;
-            // const result = await response.json();
+            const result = await response.json();
             // console.log(result);
+            // {id: 'f993be6b-0f04-439b-ba16-4252e06020fc', itemID: '65c96273-ef24-4217-ac63-40bb30064624', name: 'video.mp4'}
+            mediaFileID = result[0].id;
+          }
+        }
+
+        if(voiceOverBlob) {
+          const formData = new FormData();
+          formData.append('id', guid);
+          const now = new Date();
+          // https://stackoverflow.com/questions/13859538/simplest-inline-method-to-left-pad-a-string
+          const timestamp = ("0000" + now.getUTCFullYear()).slice(-4) + ("00" + (now.getUTCMonth() + 1)).slice(-2) + ("00" + now.getUTCDate()).slice(-2) + '-' +
+                ("00" + now.getUTCHours()).slice(-2) + ("00" + now.getUTCMinutes()).slice(-2) + ("00" + now.getUTCSeconds()).slice(-2);
+          formData.append(`file`, voiceOverBlob, `voiceover-${timestamp}.wav`);
+          const acceptJSONHeaders = { 'Accept': 'application/json' };
+          const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+          // console.log(response);
+          if(response.ok) {
+            mediaPublished = true;
+            const result = await response.json();
+            // console.log(result);
+            voiceOverFileID = result[0].id;
+          }
+        }
+
+        if(true) {
+          const transcript = app.transcript.paragraphs;
+          const translated = appMT.transcript.paragraphs;
+
+          const now = new Date();
+          // https://stackoverflow.com/questions/13859538/simplest-inline-method-to-left-pad-a-string
+          const timestamp = ("0000" + now.getUTCFullYear()).slice(-4) + ("00" + (now.getUTCMonth() + 1)).slice(-2) + ("00" + now.getUTCDate()).slice(-2) + '-' +
+                ("00" + now.getUTCHours()).slice(-2) + ("00" + now.getUTCMinutes()).slice(-2) + ("00" + now.getUTCSeconds()).slice(-2);
+
+          // publish .selma
+          const dotSELMA = {
+            id: guid,
+            timestamp,
+            unixtime: Math.floor(now.getTime() / 1000),
+            mediaFileID,
+            voiceOverFileID,
+            sourceLang,
+            targetLang,
+            sourceText,
+            targetText,
+            transcript,
+            translated,
+          }
+
+          const formData = new FormData();
+          formData.append('id', guid);
+          formData.append(`file`, new Blob([JSON.stringify(dotSELMA, undefined, 2)], { type:'application/json' }), `selma-${timestamp}.selma`);
+
+          const acceptJSONHeaders = { 'Accept': 'application/json' };
+          const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+          console.log(response);
+          if(response.ok) {
+            const result = await response.json();
+            console.log(result);
           }
         }
       }
@@ -732,6 +795,42 @@
         return false;
       }
 
+      async function PiniTreePluginMode() {
+
+        if('{{.URL}}'.startsWith('{')) {
+          // not loaded as PiniTree plugin
+          return false;
+        }
+
+        console.log('Working as PiniTree plugin');
+        // console.log('Working as PiniTree plugin, file:', '{{.URL}}');
+
+        const response = await fetch("{{.URL}}");
+        const data = await response.json();
+
+        guid = data.id;
+        document.querySelector('#guid').innerHTML = guid;
+
+        document.querySelector('#mt-src-lang').value = data.sourceLang;
+        document.querySelector('#mt-dst-lang').value = data.targetLang;
+
+        const transcript = { paragraphs: data.transcript };
+        const translated = { paragraphs: data.translated };
+
+        const mediaURL = data.mediaFileID && `/api/files/${data.mediaFileID}/content`;
+
+        if(data.voiceOverFileID) {
+          const voiceOverURL = `/api/files/${data.voiceOverFileID}/content`;
+          voiceOverAudio.src = voiceOverURL;
+          voiceOverVideo.muted = true;
+        }
+
+        app.load({ audio: mediaURL, transcript });
+        appMT.load({ audio: mediaURL, transcript: translated });
+
+        return true;
+      }
+
       document.addEventListener("DOMContentLoaded", async () => {
         await loadConfig();
         app.load({ audio: null, transcript: { paragraphs: [] } });
@@ -754,6 +853,8 @@
         voiceOverAudio = document.querySelector('#voiceover-audio');
         voiceOverVideo = appMT.$el.querySelector('video');
         syncVideoAudio(voiceOverVideo, voiceOverAudio);
+
+        PiniTreePluginMode();
       });
     </script>
     <style>
