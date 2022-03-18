@@ -647,7 +647,7 @@
 
         spinner.style.display = 'none';
 
-        // appMT.load({ audio: url });
+        appMT.load({ waveform: url });
         voiceOverAudio.src = url;
         voiceOverVideo.muted = true;
         // voiceOverVideo.src = file;
@@ -779,6 +779,7 @@
         // video.addEventListener('timeupdate', e => {
         // });
         // requestAnimationFrame();
+        appMT.onSetPosition = timestamp => { audio.currentTime = timestamp / 1000; };
       }
 
       async function checkWorker(type, engine) {
@@ -819,14 +820,17 @@
 
         const mediaURL = data.mediaFileID && `/api/files/${data.mediaFileID}/content`;
 
+        let waveform;
+
         if(data.voiceOverFileID) {
           const voiceOverURL = `/api/files/${data.voiceOverFileID}/content`;
           voiceOverAudio.src = voiceOverURL;
           voiceOverVideo.muted = true;
+          waveform = voiceOverURL;
         }
 
         app.load({ audio: mediaURL, transcript });
-        appMT.load({ audio: mediaURL, transcript: translated });
+        appMT.load({ audio: mediaURL, transcript: translated, waveform });
 
         return true;
       }
