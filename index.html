@@ -27,7 +27,7 @@
   <body class="hidden-x">
     <div style="position: absolute; width: 100px; left: 0px; right: auto; top: 0px; bottom: 0px">
       <div style="padding: 10px">
-        <button class="btn btn-outline-secondary" onclick="window.open('http://194.8.1.235:7789/documents#SELMA', '_blank')"><i class="bi bi-list-ul"></i></button>
+        <button class="btn btn-outline-secondary" onclick="window.open('http://194.8.1.235:7789/documents/2a517180-7b2a-4604-bfd8-07239e431335', '_blank')"><i class="bi bi-list-ul"></i></button>
         &nbsp;
       </div>
       <div class="left-icons">
@@ -36,7 +36,7 @@
             <li><a href="#" target="_blank">Clusters</a></li>
             <li><a href="#" target="_blank">Topics</a></li>
             <li><a href="http://194.8.1.235:7789/?token=7654321#/documents/4ee396ce-e7c2-4ece-820e-fae5afdabde9" target="_blank">NamedEntities</a></li>
-            <li><a href="http://194.8.1.235:7789/documents/2a517180-7b2a-4604-bfd8-07239e431335" target="_blank">Search</a></li>
+            <li><a href="#" target="_blank">Search</a></li>
           </ul>
         </div>
       </div>
@@ -460,6 +460,8 @@
 
         app.load({ audio: file });
         appMT.load({ audio: file });
+
+        publish(true);
       }
 
       async function transcribe(event) {
@@ -518,6 +520,8 @@
         }
 
         app.load({ transcript });
+
+        publish(true);
       }
 
       // async function sourceLanguageChanged(event) {
@@ -554,6 +558,8 @@
         spinner.style.display = 'none';
         // console.log('translated:', result);
         appMT.load({ transcript: result });
+
+        publish(true);
       }
 
       // https://github.com/pdeschen/pcm.js/blob/master/pcm.js
@@ -738,9 +744,11 @@
         // source.src = url;
         // console.log(source)
         // video.appendChild(source);
+
+        publish(true);
       }
 
-      async function publish(event) {
+      async function publish(autosave) {
         const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
         const sourceLang = document.querySelector('#mt-src-lang').value;
         const targetLang = document.querySelector('#mt-dst-lang').value;
@@ -764,7 +772,7 @@
         }
         const body = { sourceLang, sourceText, targetLang, targetText, id: guid };
         const response = await fetch(`${backendURL}/api/publish`, { method: 'POST', body: JSON.stringify(body), headers: jsonHeaders });
-        if(response.ok) {
+        if(response.ok && !autosave) {
             window.open((conf.pinitree || 'http://194.8.1.235:7789/?token=7654321') + `#/documents/${guid}`, '_blank');
         }
         // console.log(response);
@@ -904,6 +912,8 @@
         mediaFileID = data.mediaFileID;
         voiceOverFileID = data.voiceOverFileID;
 
+        mediaPublished = mediaFileID && mediaFileID.length > 0 || false;
+
         {
           const response = await fetch(mediaURL);
           if(response.ok) {
@@ -1009,7 +1019,7 @@
         await loadConfig();
         app.load({ audio: null, transcript: { paragraphs: [] } });
         document.querySelector('body').classList.remove('hidden-x');
-        document.querySelector('#publish').addEventListener('click', publish);
+        document.querySelector('#publish').addEventListener('click', () => { publish(false); });
         document.querySelector('#upload-file').addEventListener('click', uploadFile);
         document.querySelector('#file-selector').addEventListener('change', fileSelected);
         // document.querySelector('#mt-src-lang').addEventListener('change', sourceLanguageChanged);
