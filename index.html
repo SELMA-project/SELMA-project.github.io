@@ -105,6 +105,9 @@
       </div>
       <div id="guid">
       </div>
+      <div style="padding-left: 10px">
+        <img id="green-dot" src="green-dot.png" width="10px" height="10px"></img>
+      </div>
     </div>
     <div style="position: absolute; left: 100px; right: 0px; top: 0px; bottom: 0px">
     <div style="margin: 10px; position: relative">
@@ -1037,6 +1040,10 @@
         document.querySelector('#select-summary-default').addEventListener('click', () => { setSummaryEngine('default'); });
 
         document.querySelector('#workers-url').href = `${backendURL}/api/workers`;
+        const greenDot = document.querySelector('#green-dot');
+        if(greenDot) {
+          greenDot.src = `${backendURL}/green-dot.png`;
+        }
 
         app.load({ audio: null, transcript: { paragraphs: [] } });
         appMT.load({ audio: null, transcript: { paragraphs: [] } });
