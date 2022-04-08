@@ -735,9 +735,16 @@
 
         spinner.style.display = 'none';
 
-        appMT.load({ waveform: url });
-        voiceOverAudio.src = url;
-        voiceOverVideo.muted = true;
+        if(!file) {
+          appMT.load({ audio: url });
+          voiceOverAudio.src = '';
+          voiceOverVideo.muted = false;
+        } else {
+          appMT.load({ waveform: url });
+          voiceOverAudio.src = url;
+          voiceOverVideo.muted = true;
+        }
+
         // voiceOverVideo.src = file;
         // TODO: access waveform, time change from user event
 
@@ -862,8 +869,10 @@
       function syncVideoAudio(video, audio) {
         // https://github.com/rwaldron/mediagroup.js/blob/master/src/mediagroup.js
         video.addEventListener('play', e => {
-          audio.currentTime = video.currentTime;
-          audio.play();
+          if(file) {
+            audio.currentTime = video.currentTime;
+            audio.play();
+          }
         });
         video.addEventListener('pause', e => {
           audio.pause();
@@ -924,13 +933,17 @@
           }
         }
 
-        let waveform;
+        let waveform, voiceOverURL;
 
         if(data.voiceOverFileID) {
-          const voiceOverURL = `/api/files/${data.voiceOverFileID}/content`;
-          voiceOverAudio.src = voiceOverURL;
-          voiceOverVideo.muted = true;
-          waveform = voiceOverURL;
+          voiceOverURL = `/api/files/${data.voiceOverFileID}/content`;
+          if(mediaURL) {
+            voiceOverAudio.src = voiceOverURL;
+            voiceOverVideo.muted = true;
+            waveform = voiceOverURL;
+          } else {
+            voiceOverVideo.muted = false;
+          }
         }
 
         setASREngine(data.asrEngine);
@@ -939,7 +952,12 @@
         setSummaryEngine(data.summaryEngine);
 
         app.load({ audio: mediaURL, transcript });
-        appMT.load({ audio: mediaURL, transcript: translated, waveform });
+
+        if(!mediaURL && voiceOverURL) {
+          appMT.load({ audio: voiceOverURL, transcript: translated });
+        } else {
+          appMT.load({ audio: mediaURL, transcript: translated, waveform });
+        }
 
         return true;
       }
