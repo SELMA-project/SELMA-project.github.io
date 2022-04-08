@@ -265,15 +265,23 @@
         <div class="btn-group">
           <button class="btn btn-outline-secondary" type="button" id="voiceover">
             VoiceOver
-            <div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray">Engine: <span id="voiceover-engine-title"></span></div>
+            <div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray; left: 0px; right: 0px;"><!-- Engine:  --><span id="voiceover-engine-title"></span></div>
           </button>
           <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="visually-hidden">Toggle Dropdown</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><h6 class="dropdown-header" style="font-size: 8px; padding: 4px 1rem;">Select VoiceOver Engine</h6></li>
-            <li><a class="dropdown-item" href="#" id="select-vo-default">Default</a></li>
+            <!-- <li><a class="dropdown-item" href="#" id="select-vo-default">Default</a></li> -->
             <!-- <li><a class="dropdown-item" href="#" id="select-vo-">some engine</a></li> -->
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker1">PT: alexandre schossler</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker2">PT: bruno lupion</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker3">PT: clarissa nehere</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker4">PT: leila endruweit</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker5">PT: marcio damascenoe</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker6">PT: philip verminnen</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker7">PT: renate krieger</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker8">PT: roberto crescenti</a></li>
           </ul>
         </div>
         <!-- <button class="btn btn-outline-secondary" id="summary">Summary</button> -->
@@ -645,6 +653,12 @@
         const language = document.querySelector('#mt-dst-lang').value;
         const headers = { 'Accept': 'audio/*', 'Content-Type': 'application/json' };
 
+        let speaker;
+
+        if(voEngine.startsWith('pt:')) {
+          speaker = voEngine.substring(3);
+        }
+
         const fragments = [];
 
         let textLength = 0;
@@ -664,7 +678,7 @@
           }
           duration = end - start;
           textLength += text.length;
-          const body = JSON.stringify({ text, language });
+          const body = JSON.stringify({ text, language, speaker });
           try {
             const response = await fetch(`${backendURL}/api/voiceover`, { method: 'POST', body, headers });
             if(!response.ok) {
@@ -966,7 +980,7 @@
 
       asrEngine = 'asr';
       mtEngine = 'mt';
-      voEngine = 'default';
+      voEngine = 'pt:leila endruweit';
       summaryEngine = 'default';
 
       function setASREngine(engine) {
@@ -1006,11 +1020,15 @@
         } else {
           engine = voEngine;
         }
-        if(engine === 'default') {
+        if(engine.startsWith('pt:')) {
+          const speaker = engine.substring(3);
+          title = `PT: ${speaker}`;
+        } else if(engine === 'default') {
           title = 'Default';
         // } else if(engine === 'huggingface') {
         //   title = 'HuggingFace';
         }
+
         document.querySelector('#voiceover-engine-title').innerHTML = title;
       }
 
@@ -1054,7 +1072,27 @@
         document.querySelector('#select-asr-wave2vec').addEventListener('click', () => { setASREngine('w2v'); });
         document.querySelector('#select-mt-mt').addEventListener('click', () => { setMTEngine('mt'); });
         document.querySelector('#select-mt-huggingface').addEventListener('click', () => { setMTEngine('huggingface'); });
-        document.querySelector('#select-vo-default').addEventListener('click', () => { setVoiceOverEngine('default'); });
+
+        // document.querySelector('#select-vo-default').addEventListener('click', () => { setVoiceOverEngine('default'); });
+
+        const ptEngineSpeakers = [
+          'alexandre schossler',
+          'bruno lupion',
+          'clarissa nehere',
+          'leila endruweit',
+          'marcio damascenoe',
+          'philip verminnen',
+          'renate krieger',
+          'roberto crescenti',
+        ];
+
+        let i = 1;
+        for(const speaker of ptEngineSpeakers) {
+          console.log(`select-vo-pt-speaker${i}`);
+          document.querySelector(`#select-vo-pt-speaker${i}`).addEventListener('click', () => { setVoiceOverEngine(`pt:${speaker}`); });
+          i++;
+        }
+
         document.querySelector('#select-summary-default').addEventListener('click', () => { setSummaryEngine('default'); });
 
         document.querySelector('#workers-url').href = `${backendURL}/api/workers`;
