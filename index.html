@@ -911,6 +911,197 @@
         return false;
       }
 
+
+      const symbols = '0987654321abcdefghijklmnoprstuvyz';
+
+      function randomID(n=4) {
+        const l = symbols.length;
+        const k = Math.pow(l, n);
+        // let r = randInt(k)
+        let r = Math.floor(Math.random() * k);
+        const id = [];
+        for(let i=0; i<n; i+=1) {
+          id.push(symbols[r % l])
+          r = Math.floor(r / l)
+        }
+        return id.join('');
+      }
+
+      function newID(parentID) {
+        return randomID();
+      }
+
+      // NOTE: copy span without entity information
+      function copySpan(span, ...attrs) {
+        return Object.assign({}, span, { id: newID() }, { format: Object.assign({}, span.format || {}) }, ...attrs)
+        // return Object.assign({}, span, { format: Object.assign({}, span.format || {}), entities: (span.entities || []).slice() }, ...attrs)  // NOTE: do not use: copies entities
+      }
+
+      function mergeMentions(data, mentions) {
+
+        // span whole text offset mappings to paragraph/span references
+        // separate span start and end whole text offset mappings
+        const offsetToSpan = {};
+        const endOffsetToSpan = {};
+
+        const paragraphs = data;
+
+        let offset = 0;
+        let paragraphIndex = 0, spanIndex;
+        for(const paragraph of paragraphs) {
+          const spanSplits = [];
+          spanIndex = 0;
+          for(const span of paragraph.spans) {
+            const end = offset + span.text.length;
+            // NOTE: store only mention matching positions?
+            offsetToSpan[offset] = { paragraph, span, paragraphIndex, paragraphID: paragraph.id, spanID: span.id };
+            endOffsetToSpan[end] = { paragraph, span, paragraphIndex, paragraphID: paragraph.id, spanID: span.id };
+
+            let splitOffsets = {};
+
+            for(const mention of mentions) {
+              // store only span inner offsets for splitting
+              if(mention.start > offset && mention.start < end) {
+                splitOffsets[mention.start - offset] = true;
+              }
+              if(mention.end > offset && mention.end < end) {
+                splitOffsets[mention.end - offset] = true;
+              }
+            }
+
+            if(Object.keys(splitOffsets).length > 0) {
+              spanSplits.push({ span, spanIndex, spanOffset: offset, splitOffsets });
+            }
+
+            offset = end;
+            spanIndex++;
+          }
+
+          // make the splits here
+          spanSplits.reverse();
+          for(const { span, spanIndex, splitOffsets, spanOffset } of spanSplits) {
+            const offsets = Object.keys(splitOffsets);
+            offsets.sort();
+
+            const parts = [];
+            let start = 0;
+            for(const end of offsets) {
+              parts.push(span.text.substring(start, end));
+              start = end;
+            }
+            parts.push(span.text.substring(start));
+
+            const spans = [];
+            for(let i=0; i<parts.length; i++) {
+              spans.push(copySpan(span, { text: parts[i] }));
+              const s = { paragraph, paragraphIndex, paragraphID: paragraph.id, spanID: spans[i].id, span: spans[i] };
+              const o = parseInt(i > 0 ? offsets[i-1] : 0);
+              // write offsets to offsetToSPan
+              offsetToSpan[spanOffset + o] = Object.assign({}, s);
+              endOffsetToSpan[spanOffset + o + spans[i].text.length] = Object.assign({}, s);
+            }
+
+            paragraph.spans.splice(spanIndex, 1, ...spans);
+          }
+
+          paragraphIndex++;
+        }
+
+        // gather paragraph/span id -> paragraph/span index
+        // we don't need all possible paragraph/span indexes, only matching mentions
+
+        const indexes = {};
+
+        for(const mention of mentions) {
+          const start = offsetToSpan[mention.start];
+          const end = endOffsetToSpan[mention.end];
+
+          let p;
+
+          p = indexes[start.paragraphID];
+          if(!p) {
+            p = {};
+          }
+          p[start.spanID] = true;
+          indexes[start.paragraphID] = p;
+        }
+
+
+        offset = 0;
+        paragraphIndex = 0;
+        for(const paragraph of data) {
+          const pspans = indexes[paragraph.id];
+          spanIndex = 0;
+          for(const span of paragraph.spans) {
+            const end = offset + span.text.length;
+            if(pspans) {
+              pspans[span.id] = { paragraphIndex, spanIndex };
+            }
+            offset = end;
+            spanIndex++;
+          }
+        }
+
+        function addSpanMention(span, mention) {
+          let entities = span.entities;
+          if(!entities) {
+            span.entities = entities = [];
+          }
+          entities.push(mention.targetID);
+        }
+
+        for(const mention of mentions) {
+          const start = offsetToSpan[mention.start];
+          const end = endOffsetToSpan[mention.end];
+
+          let t;
+          t = indexes[start.paragraphID];
+          if(t) {
+            t = t[start.spanID];
+            if(t) {
+              start.paragraphIndex = t.paragraphIndex;
+              start.spanIndex = t.spanIndex;
+            }
+          }
+          t = indexes[end.paragraphID];
+          if(t) {
+            t = t[end.spanID];
+            if(t) {
+              end.paragraphIndex = t.paragraphIndex;
+              end.spanIndex = t.spanIndex;
+            }
+          }
+
+          // one liner for the above, that did not work in the browser
+          // { paragraphIndex: start.paragraphIndex, spanIndex: start.spanIndex } = (indexes[start.paragraphID] || {})[start.spanID];
+          // { paragraphIndex: end.paragraphIndex, spanIndex: end.spanIndex } = (indexes[end.paragraphID] || {})[end.spanID];
+
+          for(let p = start.paragraphIndex; p <= end.paragraphIndex; p++) {
+            const spans = paragraphs[p].spans;
+            if(p === start.paragraphIndex && p === end.paragraphIndex) {
+              for(let s = start.spanIndex; s <= end.spanIndex && s < spans.length; s++) {
+                const span = spans[s];
+                addSpanMention(span, mention);
+              }
+            } else if(p === start.paragraphIndex) {
+              for(let s = start.spanIndex; s < spans.length; s++) {
+                const span = spans[s];
+                addSpanMention(span, mention);
+              }
+            } else if(p === end.paragraphIndex) {
+              for(let s = 0; s <= end.spanIndex && s < spans.length; s++) {
+                const span = spans[s];
+                addSpanMention(span, mention);
+              }
+            } else {
+              for(const span of spans) {
+                addSpanMention(span, mention);
+              }
+            }
+          }
+        }
+      }
+
       async function PiniTreePluginMode() {
 
         if('{{.URL}}'.startsWith('{')) {
@@ -929,6 +1120,78 @@
 
         document.querySelector('#mt-src-lang').value = data.sourceLang;
         document.querySelector('#mt-dst-lang').value = data.targetLang;
+
+        let doc, mentions;
+
+        const documentURL = data.id && `/api/documents/${data.id}`;
+        if(documentURL) {
+          const response = await fetch(documentURL);
+          doc = await response.json();
+        }
+
+        const mentionsURL = data.id && `/api/documents/${data.id}/mentions`;
+        if(mentionsURL) {
+          const response = await fetch(mentionsURL);
+          mentions = await response.json();
+        }
+
+        // console.debug('DOCUMENT:', doc);
+        // console.debug('MENTIONS:', mentions);
+
+        // merge mentions with transcript
+
+        const originalTextMarker = 'Original Text:\n';
+        const targetTextMarker = 'Target Text:\n';
+
+        let originalTextOffset = doc.text.indexOf(originalTextMarker);
+        let targetTextOffset = doc.text.indexOf(targetTextMarker);
+
+        if(originalTextOffset !== -1) {
+          originalTextOffset += originalTextMarker.length;
+        }
+        if(targetTextOffset !== -1) {
+          targetTextOffset += targetTextMarker.length;
+        }
+
+        // console.debug(`Original text offset: ${originalTextOffset}, target text offset: ${targetTextOffset}`);
+
+        const originalTextMentions = [];
+        const targetTextMentions = [];
+
+        for(const mention of mentions) {
+          if(targetTextOffset !== -1 && mention.start >= targetTextOffset) {
+            mention.start -= targetTextOffset;
+            mention.end -= targetTextOffset;
+            targetTextMentions.push(mention);
+          } else if(originalTextOffset !== -1 && mention.start >= originalTextOffset) {
+            mention.start -= originalTextOffset;
+            mention.end -= originalTextOffset;
+            originalTextMentions.push(mention);
+          }
+        }
+
+        // clear entity information
+        for(const paragraph of data.transcript) {
+          for(const span of paragraph.spans) {
+            if(span.entities) {
+              delete span.entities;
+            }
+          }
+        }
+        for(const paragraph of data.translated) {
+          for(const span of paragraph.spans) {
+            if(span.entities) {
+              delete span.entities;
+            }
+          }
+        }
+
+        mergeMentions(data.transcript, originalTextMentions);
+        mergeMentions(data.translated, targetTextMentions);
+
+        // console.debug('Original Text Mentions:', originalTextMentions);
+        // console.debug('Target Text Mentions:', targetTextMentions);
+
 
         const transcript = { paragraphs: data.transcript };
         const translated = { paragraphs: data.translated };
