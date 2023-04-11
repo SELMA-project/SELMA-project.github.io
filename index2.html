@@ -26,9 +26,20 @@
   </head>
   <body class="hidden-x">
     <div style="position: absolute; width: 100px; left: 0px; right: auto; top: 0px; bottom: 0px">
+      <div style="padding-left: 10px; margin-top: 8px; margin-bottom: 8px; width: 90px; height: 160px">
+        <div style="transform: scale(0.5) translate(-50%, -50%)">
+          <img id="semaphore" src="semaphore.png" -width="70px" usemap="#semaphore"></img>
+          <map name="semaphore" width="70px">
+            <area shape="circle" coords="80,65,50" href="#red" target="_blank" alt="Red">
+            <area shape="circle" coords="80,154,50" href="http://194.8.1.230:16555/" target="_blank" alt="Yellow">
+            <area shape="circle" coords="80,238,50" href="http://194.8.1.225:16555/uc02/" target="_blank" alt="Green">
+          </map>
+        </div>
+      </div>
+      <!--
       <div style="padding: 10px">
         <button class="btn btn-outline-secondary" onclick="window.open('list')"><i class="bi bi-list-ul"></i></button>
-        <!-- <button class="btn btn-outline-secondary" onclick="window.open('list', '_blank')"><i class="bi bi-list-ul"></i></button> -->
+        <#- <button class="btn btn-outline-secondary" onclick="window.open('list', '_blank')"><i class="bi bi-list-ul"></i></button> -#>
         &nbsp;
       </div>
       <div class="left-icons">
@@ -46,6 +57,7 @@
         Auto<div style="position: absolute;top: auto;bottom: 0px;font-size: 8px;color: gray;right: 4px;text-align: right;width: 50px;">Ingest Pipeline Publish</div></button>
       <br/>
       <br/>
+      -->
       <div class="left-icons">
         <div class="resource">
           <a href="http://194.8.1.235:10000/swagger/index.html" target="_blank"><img class="icon" src="prib.png" _style="height: 46px; top: 0px; right: 400px; position: absolute"></a>
@@ -93,7 +105,7 @@
           <a href="https://p.dw.com/p/3dJvX" target="_blank"><img class="icon" src="dw.png"></a>
           <ul>
             <li><a href="http://194.8.1.230:5002/results" target="_blank">Whisper</a></li>
-            <li><a href="#" target="_blank">AB</a></li>
+            <li><a href="http://194.8.1.235:7789/?token=7654321#/documents/4ee396ce-e7c2-4ece-820e-fae5afdabde9" target="_blank">AB</a></li>
           </ul>
         </div>
         <div class="resource">
@@ -1375,6 +1387,11 @@
         syncVideoAudio(voiceOverVideo, voiceOverAudio);
 
         PiniTreePluginMode();
+
+        console.log(location.hash)
+        if(location.hash == '#red') {
+          document.querySelector('body').classList.add('ui-red');
+        }
       });
     </script>
     <style>
@@ -1385,6 +1402,9 @@
         margin: 0px;
         padding: 0px;
         position: relative;
+      }
+      body.ui-red {
+        background-color: #ffd4d4;
       }
       #app::before {
         content: "Original";
