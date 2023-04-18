@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>SELMA Demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+      if(location.hash === '#yannick') {
+        location.hash = '';
+        // document.querySelector('link').remove();
+        document.write(`
+          <link rel="stylesheet" href="dist-yannick/index.dcc93541.css">
+          <script type="text/javascript">var serverUrl="http://ns334712.ip-178-33-239.eu/api";<\/script>
+          <script type="module" src="dist-yannick/index.e448407d.js"><\/script>
+        `);
+      }
+    </script>
+    <link rel="stylesheet" href="dist/style.css">
+    <style>
+      .hidden-x {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="hidden-x">
+    <div style="position: absolute; width: 100px; left: 0px; right: auto; top: 0px; bottom: 0px">
+      <div style="padding-left: 10px; margin-top: 8px; margin-bottom: 8px; width: 90px; height: 160px">
+        <div style="transform: scale(0.5) translate(-50%, -50%)">
+          <img id="semaphore" src="semaphore.png" -width="70px" usemap="#semaphore"></img>
+          <map name="semaphore" width="70px">
+            <area shape="circle" coords="80,65,50" href="#red" target="_blank" alt="Red">
+            <area shape="circle" coords="80,154,50" href="http://194.8.1.230:16555/" target="_blank" alt="Yellow">
+            <area shape="circle" coords="80,238,50" href="http://194.8.1.225:16555/uc02/" target="_blank" alt="Green">
+          </map>
+        </div>
+      </div>
+      <!--
+      <div style="padding: 10px">
+        <button class="btn btn-outline-secondary" onclick="window.open('list')"><i class="bi bi-list-ul"></i></button>
+        <#- <button class="btn btn-outline-secondary" onclick="window.open('list', '_blank')"><i class="bi bi-list-ul"></i></button> -#>
+        &nbsp;
+      </div>
+      <div class="left-icons">
+        <div class="resource">
+          <ul>
+            <li><a href="#" target="_blank">Clusters</a></li>
+            <li><a href="#" target="_blank">Topics</a></li>
+            <li><a href="http://194.8.1.235:7789/?token=7654321#/documents/4ee396ce-e7c2-4ece-820e-fae5afdabde9" target="_blank">NamedEntities</a></li>
+            <li><a href="#" target="_blank">Search</a></li>
+          </ul>
+        </div>
+      </div>
+      <button class="btn btn-outline-secondary" id="auto-ingest" style="position: relative;margin-left: 10px;width: 90px;text-align: left;padding-left: 6px;"
+        onclick="window.open('ingest.html', '_blank')">
+        Auto<div style="position: absolute;top: auto;bottom: 0px;font-size: 8px;color: gray;right: 4px;text-align: right;width: 50px;">Ingest Pipeline Publish</div></button>
+      <br/>
+      <br/>
+      -->
+      <div class="left-icons">
+        <div class="resource">
+          <a href="http://194.8.1.235:10000/swagger/index.html" target="_blank"><img class="icon" src="prib.png" _style="height: 46px; top: 0px; right: 400px; position: absolute"></a>
+          <ul>
+            <li><a href="http://ents.pinitree.com:9100/y:selmaproject:hnner_latvian_cpu:1.0.6:80/docs" target="_blank">LV-NER</a></li>
+            <li><a href="http://194.8.1.235:15672/" target="_blank">RabbitMQ</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="/#yannick" target="_blank"><img class="icon" src="Avignon2.png" _style="height: 46px; top: 0px; right: 250px; position: absolute"></a>
+          <ul>
+            <li><a href="http://ents.pinitree.com:9100/y:selmaproject:uc0:lia-fr-asr:9090/docs" target="_blank">ASR+Diarization</a></li>
+            <li><a href="http://ents.pinitree.com:9100/y:selmaproject:uc0:lia-fr-enR:9091/docs" target="_blank">SpeechTranslation</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="http://194.8.1.235:7789/" target="_blank"><img class="icon" src="pinitree.png"></a>
+          <ul>
+            <li><a href="http://ents.pinitree.com:9100/host:194.8.1.235:7789/uploads/testgb.html" target="_blank">FrontendPipeL</a></li>
+            <li><a href="http://194.8.1.230:12555" target="_blank">FrontendUC0</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="#" target="_blank"><img class="icon" src="fraunhofer.png"></a>
+          <ul>
+            <li><a href="http://ents.pinitree.com:9100/y:selmaproject:iais-asr-services:engdeu:8000/docs" target="_blank">EN ASR</a></li>
+            <li><a href="http://ents.pinitree.com:9100/y:selmaproject:iais-punctcap:en:8000/docs" target="_blank">EN Punct</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="https://app.plain-x.com/" target="_blank"><img class="icon" src="plainX.png"></a>
+          <ul>
+            <li><a href="https://onlinetexttools.com/json-stringify-text" target="_blank">XYS</a></li>
+            <li><a href="#" target="_blank">AB</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="https://app.monitio.com/" target="_blank"><img class="icon" src="monitio.png"></a>
+          <ul>
+            <li><a href="#" target="_blank">XY</a></li>
+            <li><a href="#" target="_blank">AB</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="https://p.dw.com/p/3dJvX" target="_blank"><img class="icon" src="dw.png"></a>
+          <ul>
+            <li><a href="http://194.8.1.230:5002/results" target="_blank">Whisper</a></li>
+            <li><a href="http://194.8.1.235:7789/?token=7654321#/documents/4ee396ce-e7c2-4ece-820e-fae5afdabde9" target="_blank">AB</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="https://translate.gourmet.newslabs.co" target="_blank"><img class="icon" src="Gourmet.png"></a>
+          <ul>
+            <li><a href="https://gourmet-project.eu" target="_blank">GourmetProject</a></li>
+            <li><a href="https://demo.pinitree.com:44444/y:selmaproject:uc0:backend1:8888/gourmet.log" target="_blank">TokenQueue Log</a></li>
+          </ul>
+        </div>
+      </div>
+      <div id="guid">
+      </div>
+      <div style="padding-left: 10px">
+        <img id="green-dot" src="green-dot.png" width="10px" height="10px"></img>
+      </div>
+    </div>
+    <div style="position: absolute; left: 100px; right: 0px; top: 0px; bottom: 0px">
+    <div style="margin: 10px; position: relative">
+      <!--
+      <button class="btn btn-outline-secondary" onclick="window.open('/', '_self')"><i class="bi bi-list-ul"></i></button>
+      &nbsp;
+      -->
+      <button class="btn btn-outline-secondary" id="publish">Publish<div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray"> ⬳ </div></button>
+      &nbsp;
+      <button class="btn btn-outline-secondary" id="upload-file">UploadVideo<div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray">Max 8 min., 10M/day</div></button>
+      <input type="file" id="file-selector" style="display: none">
+      <span id="status"></span>
+      <div style="display: inline-block">
+      <div id="top-spinner">
+        <div class="spinner-border text-danger" role="status">
+          <span class="visually-hidden"></span>
+        </div>
+        <span class="label">
+          Processing...
+        </span>
+      </div>
+      </div>
+      <div style="position: relative; left: 10px; display: inline-block; top: 4px">
+        <!-- Machine Translation&nbsp; -->
+        <select id="mt-src-lang">
+          <option value="lv">Latvian</option>
+          <option value="sq">Albanian</option>
+          <option value="am">Amharic</option>
+          <option value="ar">Arabic</option>
+          <option value="bn">Bengali</option>
+          <option value="bs">Bosnian</option>
+          <option value="bg">Bulgarian</option>
+          <option value="zh">Chinese Mandarin</option>
+          <option value="hr">Croatian</option>
+          <option value="en">English</option>
+          <option value="fa">Farsi</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="el">Greek</option>
+          <option value="ha">Hausa</option>
+          <option value="hi">Hindi</option>
+          <option value="hu">Hungarian</option>
+          <option value="id">Indonesian</option>
+          <option value="it">Italian</option>
+          <option value="mk">Macedonian</option>
+          <option value="pa">Panjabi</option>
+          <option value="ps">Pashto</option>
+          <option value="pl">Polish</option>
+          <option value="pt">Portuguese</option>
+          <option value="ro">Romanian</option>
+          <option value="ru">Russian</option>
+          <option value="sr">Serbian</option>
+          <option value="es">Spanish</option>
+          <option value="sw">Swahili</option>
+          <option value="ta">Tamil</option>
+          <option value="tr">Turkish</option>
+          <option value="uk">Ukrainian</option>
+          <option value="ur">Urdu</option>
+        </select>
+        <!--
+        <span style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">
+          ASR Engine:
+          <select id="asr-engine" _style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">
+            <option value="asr" selected>Kaldi</option>
+            <option value="w2v">Wave2Vec</option>
+            <option value="st">SpeechTranslation</option>
+          </select>
+        </span>
+        -->
+        <!-- <span style="display: inline-block; position: absolute; left: 0px; top: 30px; font-size: 8px">ASR engine: Kaldi</span> -->
+        <!-- &horbar;&gt; -->
+        &#10142;
+        <select id="mt-dst-lang">
+          <option value="en">English</option>
+          <option value="sq">Albanian</option>
+          <option value="am">Amharic</option>
+          <option value="ar">Arabic</option>
+          <option value="bn">Bengali</option>
+          <option value="bs">Bosnian</option>
+          <option value="bg">Bulgarian</option>
+          <option value="zh">Chinese Mandarin</option>
+          <option value="hr">Croatian</option>
+          <option value="fa">Farsi</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="el">Greek</option>
+          <option value="ha">Hausa</option>
+          <option value="hi">Hindi</option>
+          <option value="hu">Hungarian</option>
+          <option value="id">Indonesian</option>
+          <option value="it">Italian</option>
+          <option value="lv">Latvian</option>
+          <option value="mk">Macedonian</option>
+          <option value="pa">Panjabi</option>
+          <option value="ps">Pashto</option>
+          <option value="pl">Polish</option>
+          <option value="pt">Portuguese</option>
+          <option value="ro">Romanian</option>
+          <option value="ru">Russian</option>
+          <option value="sr">Serbian</option>
+          <option value="es">Spanish</option>
+          <option value="sw">Swahili</option>
+          <option value="ta">Tamil</option>
+          <option value="tr">Turkish</option>
+          <option value="uk">Ukrainian</option>
+          <option value="ur">Urdu</option>
+        </select>
+        <!--
+        <span style="display: inline-block; position: absolute; left: 176px; top: 30px; font-size: 8px">
+          MT Engine:
+          <select id="mt-engine" _style="display: inline-block; position: absolute; left: 0px; top: 176px; font-size: 8px">
+            <option value="mt" selected>M2M-100</option>
+            <option value="huggingface">HuggingFace</option>
+          </select>
+        </span>
+        -->
+        <!-- <span style="display: inline-block; position: absolute; left: 176px; top: 30px; font-size: 8px">MT engine: M2M-100</span> -->
+        &nbsp;&nbsp;
+        <!-- <button class="btn btn-outline-secondary" id="transcribe">Transcribe</button> -->
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary" type="button" id="transcribe">
+            Transcribe
+            <div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray">Engine: <span id="asr-engine-title"></span></div>
+          </button>
+          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header" style="font-size: 8px; padding: 4px 1rem;">Select ASR Engine</h6></li>
+            <li><a class="dropdown-item" href="#" id="select-asr-kaldi">Kaldi</a></li>
+            <li><a class="dropdown-item" href="#" id="select-asr-wave2vec">Wave2Vec</a></li>
+            <li><a class="dropdown-item" href="#" id="select-asr-speechtranslation">SpeechTranslation</a></li>
+          </ul>
+        </div>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <!-- <button class="btn btn-outline-secondary" id="translate">Translate</button> -->
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary" type="button" id="translate">
+            Translate
+            <div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray">Engine: <span id="mt-engine-title"></span></div>
+          </button>
+          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header" style="font-size: 8px; padding: 4px 1rem;">Select MT Engine</h6></li>
+            <li><a class="dropdown-item" href="#" id="select-mt-mt">M2M-100</a></li>
+            <li><a class="dropdown-item" href="#" id="select-mt-huggingface">HuggingFace</a></li>
+          </ul>
+        </div>
+        <!--
+        <button class="btn btn-outline-secondary" id="voiceover"
+          _onclick="window.open('http://194.8.1.234:9923/', '_blank')">VoiceOver</button>
+        -->
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary" type="button" id="voiceover">
+            VoiceOver
+            <div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray; left: 0px; right: 0px;"><!-- Engine:  --><span id="voiceover-engine-title"></span></div>
+          </button>
+          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header" style="font-size: 8px; padding: 4px 1rem;">Select VoiceOver Engine</h6></li>
+            <!-- <li><a class="dropdown-item" href="#" id="select-vo-default">Default</a></li> -->
+            <!-- <li><a class="dropdown-item" href="#" id="select-vo-">some engine</a></li> -->
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker1">PT: alexandre schossler</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker2">PT: bruno lupion</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker3">PT: clarissa nehere</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker4">PT: leila endruweit</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker5">PT: marcio damascenoe</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker6">PT: philip verminnen</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker7">PT: renate krieger</a></li>
+            <li><a class="dropdown-item" href="#" id="select-vo-pt-speaker8">PT: roberto crescenti</a></li>
+          </ul>
+        </div>
+        <!-- <button class="btn btn-outline-secondary" id="summary">Summary</button> -->
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary" type="button" id="summary">
+            Summary
+            <div style="position: absolute; top: auto; bottom: 0px; font-size: 8px; color: gray">Engine: <span id="summary-engine-title"></span></div>
+          </button>
+          <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header" style="font-size: 8px; padding: 4px 1rem;">Select Summary Engine</h6></li>
+            <li><a class="dropdown-item" href="#" id="select-summary-default">Default</a></li>
+            <!-- <li><a class="dropdown-item" href="#" id="select-summary-">some engine</a></li> -->
+          </ul>
+        </div>
+      </div>
+      <style>
+        img.icon {
+          height: 26px;
+          top: 0px;
+        }
+        div.icons {
+          display: inline-block;
+          position: absolute;
+          right: 10px;
+        }
+        div.resource {
+          display: inline-block;
+          padding-left: 30px;
+        }
+        div.resource > ul {
+          font-size: 0.6em;
+          padding-left: 12px;
+        }
+        div.left-icons > div.resource {
+          display: block;
+          padding-left: 10px;
+        }
+      </style>
+      <div class="icons">
+        <div class="resource">
+          <a href="https://confluence.dw.com/pages/viewpage.action?pageId=266120260" target="_blank"><img class="icon" src="confluence.png" _style="height: 46px; top: 0px; right: 10px; position: absolute"></a>
+          <ul>
+            <li><a href="https://github.com/SELMA-project" target="_blank">GitHub</a></li>
+            <li><a href="https://hub.docker.com/orgs/selmaproject/repositories" target="_blank">DockerHub</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="https://github.com/SELMA-project/BootFlash" target="_blank"><img class="icon" src="usbflash.png" _style="height: 46px; top: 0px; right: 10px; position: absolute"></a>
+          <ul>
+            <li><a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/deploy-lambda-functions-with-container-images.html" target="_blank">AWS Cloud</a></li>
+            <li><a href="https://github.com/SELMA-project/docker-spaces" target="_blank">Docker Spaces</a></li>
+          </ul>
+        </div>
+        <div class="resource">
+          <a href="http://194.8.1.235:7791/" target="_blank"><img class="icon" src="jupyter.png" _style="height: 46px; top: 0px; right: 10px; position: absolute"></a>
+          <ul>
+            <li><a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-kubernetes-keda" target="_blank">Azure Cloud</a></li>
+            <li><a href="https://colab.research.google.com" target="_blank">Colab notebook</a></li>
+          </ul>
+        </div>
+        <!--
+        <div class="resource">
+          <a href="http://194.8.1.235:7789/" target="_blank"><img class="icon" src="pinitree.png"></a>
+          <ul>
+            <li><a href="#" target="_blank">Media Server</a></li>
+            <li><a href="#" target="_blank">NEL</a></li>
+          </ul>
+        </div>
+        -->
+        <!--
+        <div class="resource">
+          <a href="http://194.8.1.235:10000/swagger/index.html" target="_blank"><img class="icon" src="prib.png" _style="height: 46px; top: 0px; right: 400px; position: absolute"></a>
+          <ul>
+            <li><a href="http://194.8.1.235:54322/" target="_blank">SQL DB</a></li>
+            <li><a href="http://194.8.1.235:15672/" target="_blank">RabbitMQ</a></li>
+          </ul>
+        </div>
+        -->
+        <!--
+        <div class="resource">
+          <a href="/#yannick" target="_blank"><img class="icon" src="workflow-mark-indigo-600.svg" _style="height: 46px; top: 0px; right: 250px; position: absolute"></a>
+          <ul>
+            <li><a href="#" target="_blank" target="_blank">ASR</a></li>
+            <li><a href="#" target="_blank">Voice Synthesis</a></li>
+          </ul>
+        </div>
+        -->
+        <div class="resource">
+          <a id="workers-url" href="/api/workers" target="_blank"><img class="icon" src="logo.png" _style="height: 46px; top: 0px; right: 10px; position: absolute"></a>
+          <ul>
+            <li><a href="http://194.8.1.235:7789/?token=7654321" target="_blank">Add NLP Image</a></li>
+            <li><a href="http://selma-project.eu/" target="_blank">SELMA Project</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div id="app"></div>
+    <div id="app-mt"></div>
+    </div>
+    <audio id="voiceover-audio" style="display: hidden"></audio>
+    <script type="module" defer>
+
+      // https://qawithexperts.com/article/javascript/generating-guiduuid-using-javascript-various-ways/372
+      function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      }
+
+      function reset(id) {
+        const element = document.querySelector(`#${id}`);
+        if(element) {
+          element.classList.remove('invalid');
+        }
+      }
+
+      import init from './dist/ruta.es.js';
+
+      const app = init('#app');
+      const appMT = init('#app-mt');
+      const spinner = document.querySelector('#top-spinner')
+
+      let voiceOverAudio, voiceOverVideo;
+      let voiceOverBlob;
+
+      function uploadFile(event) {
+
+        if(file !== undefined) {
+          window.open('/', '_blank');
+          return;
+        }
+
+        const fileSelector = document.querySelector('#file-selector')
+        fileSelector.click();
+      }
+
+      let guid = uuidv4();
+
+      let file;
+      let backendURL = '';
+      let mediaPublished = false;
+      let conf = {};
+
+      let mediaFileID, voiceOverFileID;
+
+
+      async function loadConfig() {
+        const response = await fetch(`config.json`);
+        if(response.ok) {
+          conf = await response.json();
+          backendURL = conf.backend;
+        }
+      }
+
+      async function fileSelected(event) {
+        file = event.target.files[0];
+        const status = document.querySelector('#status')
+        // reset file selector: https://stackoverflow.com/a/35323290
+        event.target.value = ''
+        if(!/safari/i.test(navigator.userAgent)){
+          event.target.type = ''
+          event.target.type = 'file'
+        }
+
+        if(!file) {
+          return;
+        }
+
+        mediaPublished = false;
+
+        // if(blobURL && typeof(blobURL) === 'string' && blobURL.startsWith('blob:')) {
+        //   URL.revokeObjectURL(blobURL);
+        // }
+        //
+        // blobURL = URL.createObjectURL(file);
+        // filename = file.name;
+
+        spinner.style.display = 'inline-block';
+        spinner.style.display = 'none';
+
+        app.load({ audio: null, transcript: { paragraphs: [] } });
+        appMT.load({ audio: null, transcript: { paragraphs: [] } });
+
+        app.load({ audio: file });
+        appMT.load({ audio: file });
+
+        publish(true);
+      }
+
+      async function transcribe(event) {
+
+        if(!file) {
+          return;
+        }
+
+        // const engine = document.querySelector('#asr-engine').value;
+        const engine = asrEngine;
+        const sourceLang = document.querySelector('#mt-src-lang').value;
+
+        if(!(await checkWorker(engine, sourceLang))) {
+          console.error(`invalid engine-language combination for engine '${engine}' and language '${sourceLang}'`);
+          document.querySelector('#asr-engine').classList.add('invalid');
+          return;
+        }
+
+        // reset('asr-engine');
+
+        spinner.style.display = 'inline-block';
+
+        // const r = await fetch(blobURL)
+        // const data = await r.blob()
+
+        const formData = new FormData();
+        formData.append(file.name, file);
+        const acceptJSONHeaders = { 'Accept': 'application/json' };
+        const response = await fetch(`${backendURL}/api/upload?asr=${sourceLang}&engine=${engine}`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+        if(!response.ok) {
+          spinner.style.display = 'none';
+          try {
+            const result = await response.json();
+            console.error('upload error:', result.error);
+          } catch(e) {
+            console.error('upload error');
+          }
+          return;
+        }
+        const result = await response.json();
+        const { transcript, translated } = result;
+
+        spinner.style.display = 'none';
+
+        // fix broken time code for 20s segmentation
+        let offset = 0;
+        let last = 0;
+        for(const p of transcript.paragraphs) {
+          for(const s of p.spans) {
+            if(s.time < last) {
+              offset += 20000;
+            }
+            last = s.time;
+            s.time += offset;
+          }
+        }
+
+        app.load({ transcript });
+
+        publish(true);
+      }
+
+      // async function sourceLanguageChanged(event) {
+      //   console.log('source language:', event.target.value);
+      // }
+      //
+      // async function targetLanguageChanged(event) {
+      //   console.log('target language:', event.target.value);
+      // }
+
+      async function translate(event) {
+
+        // console.log('TRANSLATE', event);
+        const sourceLang = document.querySelector('#mt-src-lang').value;
+        const targetLang = document.querySelector('#mt-dst-lang').value;
+        // const engine = document.querySelector('#mt-engine').value;
+        const engine = mtEngine;
+        /*
+        if(!(await checkWorker(engine, sourceLang))) {
+          console.error(`invalid engine-language combination for engine '${engine}' and language '${sourceLang}'`);
+          document.querySelector('#mt-engine').classList.add('invalid');
+          return;
+        }
+        reset('mt-engine');
+        */
+        // console.log('source language:', sourceLang);
+        // console.log('target language:', targetLang);
+        const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        appMT.load({ transcript: {} });
+        spinner.style.display = 'inline-block';
+        const body = JSON.stringify(app.transcript);
+        const response = await fetch(`${backendURL}/api/translate?src=${sourceLang}&dst=${targetLang}&engine=${engine}`, { method: 'POST', body, headers });
+        const result = await response.json();
+        spinner.style.display = 'none';
+        // console.log('translated:', result);
+        appMT.load({ transcript: result });
+
+        publish(true);
+      }
+
+      // https://github.com/pdeschen/pcm.js/blob/master/pcm.js
+      function u32ToArray(i) {
+        return Uint8Array.from([i&0xFF, (i>>8)&0xFF, (i>>16)&0xFF, (i>>24)&0xFF]);
+      }
+
+      function u16ToArray(i) {
+        return Uint8Array.from([i&0xFF, (i>>8)&0xFF]);
+      }
+
+      function buffer2wav(audioBuffer, duration) {
+        // fileSize
+        // 36 + SubChunk2Size, or more precisely:
+        //                      4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)
+        //                      This is the size of the rest of the chunk 
+        //                      following this number.  This is the size of the 
+        //                      entire file in bytes minus 8 bytes for the
+        //                      two fields not included in this count:
+        //                      ChunkID and ChunkSize.
+
+        const bitsPerSample = 16;
+        const numberOfChannels = audioBuffer.numberOfChannels;
+        const sampleRate = audioBuffer.sampleRate;
+        let sampleCount = audioBuffer.length;
+
+        if(duration > 0) {
+          sampleCount = duration * audioBuffer.sampleRate;
+        }
+
+        const ch = numberOfChannels; // 1;
+        const fmt = 1; //pcm
+        const srate = sampleRate;
+        // const bitsPerSample = sampleSize; // 16;
+        const byteRate = srate * ch * bitsPerSample/8; // == SampleRate * NumChannels * BitsPerSample/8
+        const blockAlign = ch * bitsPerSample/8; // == NumChannels * BitsPerSample/8 ; The number of bytes for one sample including all channels.
+        // if(!sampleCount) {
+        //   sampleCount = data.length / (bitsPerSample/8) / numberOfChannels;
+        // }
+        // I wonder what happens when this number isn't an integer?
+        const subchunk1Size = 16; // 16 for PCM.  This is the size of the rest of the Subchunk which follows this number.
+        const subchunk2Size = sampleCount * ch * bitsPerSample/8; // == NumSamples * NumChannels * BitsPerSample/8
+        const chunkSize = 4 + 8 + subchunk1Size + 8 + subchunk2Size; // 4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)
+        // console.log(data.length, sampleCount, sampleCount*2)
+        // const dblob = new Blob(data);
+        const hblob = new Blob([
+          "RIFF", u32ToArray(chunkSize), "WAVE",
+          "fmt ", u32ToArray(subchunk1Size),
+          u16ToArray(fmt), u16ToArray(ch), u32ToArray(srate),
+          u32ToArray(byteRate),
+          u16ToArray(blockAlign),
+          u16ToArray(bitsPerSample),
+          "data", u32ToArray(subchunk2Size),
+          ], { type: '' });
+
+        const data = new Int16Array(sampleCount * numberOfChannels);  // only if bits per sample = 16
+
+        const channels = [];
+        for(let i = 0; i < numberOfChannels; i++) {
+          channels.push(audioBuffer.getChannelData(i));
+        }
+
+        for(let i = 0; i < sampleCount; i++) {
+          for(let j = 0; j < numberOfChannels; j++) {
+            data[i * numberOfChannels + j] = channels[j][i] * 0x8000;
+          }
+        }
+
+        const dblob = new Blob([data]);
+
+        const blob = new Blob([hblob, dblob], { type: 'audio/wave' })
+
+        return blob;
+      }
+
+      async function voiceover(event) {
+
+        spinner.style.display = 'inline-block';
+
+        const language = document.querySelector('#mt-dst-lang').value;
+        const headers = { 'Accept': 'audio/*', 'Content-Type': 'application/json' };
+
+        let speaker;
+
+        if(voEngine.startsWith('pt:')) {
+          speaker = voEngine.substring(3);
+        }
+
+        const fragments = [];
+
+        let textLength = 0;
+
+        for(const p of appMT.transcript.paragraphs) {
+          let text = '';
+          let start = 0;
+          let end = 0;
+          let duration = 0;
+          for(const s of p.spans) {
+            if(start === 0) {
+              start = s.time;// || textLength * 1000;
+            }
+            text += s.text;
+            // end = s.time !== undefined ? s.time + s.duration : text.length * 1000;
+            end = s.time + s.duration;
+          }
+          duration = end - start;
+          textLength += text.length;
+          const body = JSON.stringify({ text, language, speaker });
+          try {
+            const response = await fetch(`${backendURL}/api/voiceover`, { method: 'POST', body, headers });
+            if(!response.ok) {
+              spinner.style.display = 'none';
+              return;
+            }
+            const data = await response.blob();
+            fragments.push({ data, start, end, duration });
+          } catch(e) {
+            console.error('VoiceOver failed:', e);
+            spinner.style.display = 'none';
+            return;
+          }
+        }
+
+        const audioCtx = new AudioContext();
+
+        audioCtx.suspend();
+
+        let duration = fragments.length > 0 ? fragments[fragments.length - 1].end / 1000 : 0;
+
+        let noTimestamp = false;
+
+        if(!file && (duration === 0 || isNaN(duration))) {
+          duration = textLength;
+          noTimestamp = true;
+          // spinner.style.display = 'none';
+          // return;
+        }
+
+        const audioBuffer = file ? await audioCtx.decodeAudioData(await file.arrayBuffer()) : audioCtx.createBuffer(1, 22050 * duration, 22050);
+
+        const offlineAudioCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.sampleRate * audioBuffer.duration, audioBuffer.sampleRate);
+
+        const gainNode = offlineAudioCtx.createGain();
+
+        const trackSource = offlineAudioCtx.createBufferSource();
+        trackSource.buffer = audioBuffer;
+        trackSource.connect(gainNode);
+        gainNode.connect(offlineAudioCtx.destination);
+        // trackSource.connect(offlineAudioCtx.destination);
+        // gainNode.gain.value = 0.5;
+        trackSource.start(0);
+
+        let timeCode = 1;
+
+        for(const fragment of fragments) {
+          const audioBuffer = await audioCtx.decodeAudioData(await fragment.data.arrayBuffer());
+          const nextTimestamp = timeCode + audioBuffer.duration;
+          const trackSource = offlineAudioCtx.createBufferSource();
+          trackSource.buffer = audioBuffer;
+          trackSource.connect(offlineAudioCtx.destination);
+          const start = noTimestamp ? timeCode : fragment.start / 1000;
+          const end = noTimestamp ? nextTimestamp : fragment.end / 1000;
+          trackSource.start(start);
+          gainNode.gain.setValueAtTime(0.2, start);
+          gainNode.gain.setValueAtTime(1, end);
+          timeCode = nextTimestamp + 1;  // 1s in between
+        }
+
+        const renderedBuffer = await offlineAudioCtx.startRendering();
+
+        const blob = buffer2wav(renderedBuffer, noTimestamp ? timeCode : undefined);
+
+        const url = URL.createObjectURL(blob);
+
+        voiceOverBlob = blob;
+
+        spinner.style.display = 'none';
+
+        if(!file) {
+          appMT.load({ audio: url });
+          voiceOverAudio.src = '';
+          voiceOverVideo.muted = false;
+        } else {
+          appMT.load({ waveform: url });
+          voiceOverAudio.src = url;
+          voiceOverVideo.muted = true;
+        }
+
+        // voiceOverVideo.src = file;
+        // TODO: access waveform, time change from user event
+
+        // const video = appMT.$el.querySelector('video');
+        // const source = document.createElement('source')
+        // source.type = 'audio/wave';
+        // source.src = url;
+        // console.log(source)
+        // video.appendChild(source);
+
+        publish(true);
+      }
+
+      async function publish(autosave) {
+        const jsonHeaders = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+        const sourceLang = document.querySelector('#mt-src-lang').value;
+        const targetLang = document.querySelector('#mt-dst-lang').value;
+        let sourceText = '';
+        if(app.transcript.paragraphs) {
+          for(const p of app.transcript.paragraphs) {
+            for(const s of p.spans) {
+              sourceText += s.text;
+            }
+            sourceText += '\n';
+          }
+        }
+        let targetText = '';
+        if(appMT.transcript.paragraphs) {
+          for(const p of appMT.transcript.paragraphs) {
+            for(const s of p.spans) {
+              targetText += s.text;
+            }
+            targetText += '\n';
+          }
+        }
+        const body = { sourceLang, sourceText, targetLang, targetText, id: guid };
+        const response = await fetch(`${backendURL}/api/publish`, { method: 'POST', body: JSON.stringify(body), headers: jsonHeaders });
+        if(response.ok && !autosave) {
+            window.open((conf.pinitree || 'http://194.8.1.235:7789/?token=7654321') + `#/documents/${guid}`, '_blank');
+        }
+        // console.log(response);
+        // const result = await response.json();
+        // console.log(result);
+
+        if(!mediaPublished && file) {
+          const formData = new FormData();
+          formData.append('id', guid);
+          formData.append(file.name, file);
+          const acceptJSONHeaders = { 'Accept': 'application/json' };
+          const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+          // console.log(response);
+          if(response.ok) {
+            mediaPublished = true;
+            const result = await response.json();
+            // console.log(result);
+            // {id: 'f993be6b-0f04-439b-ba16-4252e06020fc', itemID: '65c96273-ef24-4217-ac63-40bb30064624', name: 'video.mp4'}
+            mediaFileID = result[0].id;
+          }
+        }
+
+        if(voiceOverBlob) {
+          const formData = new FormData();
+          formData.append('id', guid);
+          const now = new Date();
+          // https://stackoverflow.com/questions/13859538/simplest-inline-method-to-left-pad-a-string
+          const timestamp = ("0000" + now.getUTCFullYear()).slice(-4) + ("00" + (now.getUTCMonth() + 1)).slice(-2) + ("00" + now.getUTCDate()).slice(-2) + '-' +
+                ("00" + now.getUTCHours()).slice(-2) + ("00" + now.getUTCMinutes()).slice(-2) + ("00" + now.getUTCSeconds()).slice(-2);
+          formData.append(`file`, voiceOverBlob, `voiceover-${timestamp}.wav`);
+          const acceptJSONHeaders = { 'Accept': 'application/json' };
+          const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+          // console.log(response);
+          if(response.ok) {
+            mediaPublished = true;
+            const result = await response.json();
+            // console.log(result);
+            voiceOverFileID = result[0].id;
+          }
+        }
+
+        if(true) {
+          const transcript = app.transcript.paragraphs;
+          const translated = appMT.transcript.paragraphs;
+
+          const now = new Date();
+          // https://stackoverflow.com/questions/13859538/simplest-inline-method-to-left-pad-a-string
+          const timestamp = ("0000" + now.getUTCFullYear()).slice(-4) + ("00" + (now.getUTCMonth() + 1)).slice(-2) + ("00" + now.getUTCDate()).slice(-2) + '-' +
+                ("00" + now.getUTCHours()).slice(-2) + ("00" + now.getUTCMinutes()).slice(-2) + ("00" + now.getUTCSeconds()).slice(-2);
+
+          // publish .selma
+          const dotSELMA = {
+            id: guid,
+            timestamp,
+            unixtime: Math.floor(now.getTime() / 1000),
+            mediaFileID,
+            voiceOverFileID,
+            asrEngine,
+            mtEngine,
+            voEngine,
+            summaryEngine,
+            sourceLang,
+            targetLang,
+            sourceText,
+            targetText,
+            transcript,
+            translated,
+          }
+
+          const formData = new FormData();
+          formData.append('id', guid);
+          formData.append(`file`, new Blob([JSON.stringify(dotSELMA, undefined, 2)], { type:'application/json' }), `selma-${timestamp}.selma`);
+
+          const acceptJSONHeaders = { 'Accept': 'application/json' };
+          const response = await fetch(`${backendURL}/api/publish-media`, { method: 'POST', body: formData, headers: acceptJSONHeaders });
+          console.log(response);
+          if(response.ok) {
+            const result = await response.json();
+            console.log(result);
+          }
+        }
+      }
+
+      function syncVideoAudio(video, audio) {
+        // https://github.com/rwaldron/mediagroup.js/blob/master/src/mediagroup.js
+        video.addEventListener('play', e => {
+          if(file) {
+            audio.currentTime = video.currentTime;
+            audio.play();
+          }
+        });
+        video.addEventListener('pause', e => {
+          audio.pause();
+        });
+        // video.addEventListener('timeupdate', e => {
+        // });
+        // requestAnimationFrame();
+        appMT.onSetPosition = timestamp => { audio.currentTime = timestamp / 1000; };
+      }
+
+      async function checkWorker(type, engine) {
+        const acceptJSONHeaders = { 'Accept': 'application/json' };
+        const response = await fetch(`${backendURL}/api/workers`, { headers: acceptJSONHeaders })
+        const workers = await response.json();
+
+        for(const worker of workers) {
+          if(worker.type === type && worker.engine === engine) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+
+      const symbols = '0987654321abcdefghijklmnoprstuvyz';
+
+      function randomID(n=4) {
+        const l = symbols.length;
+        const k = Math.pow(l, n);
+        // let r = randInt(k)
+        let r = Math.floor(Math.random() * k);
+        const id = [];
+        for(let i=0; i<n; i+=1) {
+          id.push(symbols[r % l])
+          r = Math.floor(r / l)
+        }
+        return id.join('');
+      }
+
+      function newID(parentID) {
+        return randomID();
+      }
+
+      // NOTE: copy span without entity information
+      function copySpan(span, ...attrs) {
+        return Object.assign({}, span, { id: newID() }, { format: Object.assign({}, span.format || {}) }, ...attrs)
+        // return Object.assign({}, span, { format: Object.assign({}, span.format || {}), entities: (span.entities || []).slice() }, ...attrs)  // NOTE: do not use: copies entities
+      }
+
+      function mergeMentions(data, mentions) {
+
+        // span whole text offset mappings to paragraph/span references
+        // separate span start and end whole text offset mappings
+        const offsetToSpan = {};
+        const endOffsetToSpan = {};
+
+        const paragraphs = data;
+
+        let offset = 0;
+        let paragraphIndex = 0, spanIndex;
+        for(const paragraph of paragraphs) {
+          const spanSplits = [];
+          spanIndex = 0;
+          for(const span of paragraph.spans) {
+            const end = offset + span.text.length;
+            // NOTE: store only mention matching positions?
+            offsetToSpan[offset] = { paragraph, span, paragraphIndex, paragraphID: paragraph.id, spanID: span.id };
+            endOffsetToSpan[end] = { paragraph, span, paragraphIndex, paragraphID: paragraph.id, spanID: span.id };
+
+            let splitOffsets = {};
+
+            for(const mention of mentions) {
+              // store only span inner offsets for splitting
+              if(mention.start > offset && mention.start < end) {
+                splitOffsets[mention.start - offset] = true;
+              }
+              if(mention.end > offset && mention.end < end) {
+                splitOffsets[mention.end - offset] = true;
+              }
+            }
+
+            if(Object.keys(splitOffsets).length > 0) {
+              spanSplits.push({ span, spanIndex, spanOffset: offset, splitOffsets });
+            }
+
+            offset = end;
+            spanIndex++;
+          }
+
+          // make the splits here
+          spanSplits.reverse();
+          for(const { span, spanIndex, splitOffsets, spanOffset } of spanSplits) {
+            const offsets = Object.keys(splitOffsets);
+            offsets.sort();
+
+            const parts = [];
+            let start = 0;
+            for(const end of offsets) {
+              parts.push(span.text.substring(start, end));
+              start = end;
+            }
+            parts.push(span.text.substring(start));
+
+            const spans = [];
+            for(let i=0; i<parts.length; i++) {
+              spans.push(copySpan(span, { text: parts[i] }));
+              const s = { paragraph, paragraphIndex, paragraphID: paragraph.id, spanID: spans[i].id, span: spans[i] };
+              const o = parseInt(i > 0 ? offsets[i-1] : 0);
+              // write offsets to offsetToSPan
+              offsetToSpan[spanOffset + o] = Object.assign({}, s);
+              endOffsetToSpan[spanOffset + o + spans[i].text.length] = Object.assign({}, s);
+            }
+
+            paragraph.spans.splice(spanIndex, 1, ...spans);
+          }
+
+          paragraphIndex++;
+        }
+
+        // gather paragraph/span id -> paragraph/span index
+        // we don't need all possible paragraph/span indexes, only matching mentions
+
+        const indexes = {};
+
+        for(const mention of mentions) {
+          const start = offsetToSpan[mention.start];
+          const end = endOffsetToSpan[mention.end];
+
+          let p;
+
+          p = indexes[start.paragraphID];
+          if(!p) {
+            p = {};
+          }
+          p[start.spanID] = true;
+          indexes[start.paragraphID] = p;
+        }
+
+
+        offset = 0;
+        paragraphIndex = 0;
+        for(const paragraph of data) {
+          const pspans = indexes[paragraph.id];
+          spanIndex = 0;
+          for(const span of paragraph.spans) {
+            const end = offset + span.text.length;
+            if(pspans) {
+              pspans[span.id] = { paragraphIndex, spanIndex };
+            }
+            offset = end;
+            spanIndex++;
+          }
+        }
+
+        function addSpanMention(span, mention) {
+          let entities = span.entities;
+          if(!entities) {
+            span.entities = entities = [];
+          }
+          entities.push(mention.targetID);
+        }
+
+        for(const mention of mentions) {
+          const start = offsetToSpan[mention.start];
+          const end = endOffsetToSpan[mention.end];
+
+          let t;
+          t = indexes[start.paragraphID];
+          if(t) {
+            t = t[start.spanID];
+            if(t) {
+              start.paragraphIndex = t.paragraphIndex;
+              start.spanIndex = t.spanIndex;
+            }
+          }
+          t = indexes[end.paragraphID];
+          if(t) {
+            t = t[end.spanID];
+            if(t) {
+              end.paragraphIndex = t.paragraphIndex;
+              end.spanIndex = t.spanIndex;
+            }
+          }
+
+          // one liner for the above, that did not work in the browser
+          // { paragraphIndex: start.paragraphIndex, spanIndex: start.spanIndex } = (indexes[start.paragraphID] || {})[start.spanID];
+          // { paragraphIndex: end.paragraphIndex, spanIndex: end.spanIndex } = (indexes[end.paragraphID] || {})[end.spanID];
+
+          for(let p = start.paragraphIndex; p <= end.paragraphIndex; p++) {
+            const spans = paragraphs[p].spans;
+            if(p === start.paragraphIndex && p === end.paragraphIndex) {
+              for(let s = start.spanIndex; s <= end.spanIndex && s < spans.length; s++) {
+                const span = spans[s];
+                addSpanMention(span, mention);
+              }
+            } else if(p === start.paragraphIndex) {
+              for(let s = start.spanIndex; s < spans.length; s++) {
+                const span = spans[s];
+                addSpanMention(span, mention);
+              }
+            } else if(p === end.paragraphIndex) {
+              for(let s = 0; s <= end.spanIndex && s < spans.length; s++) {
+                const span = spans[s];
+                addSpanMention(span, mention);
+              }
+            } else {
+              for(const span of spans) {
+                addSpanMention(span, mention);
+              }
+            }
+          }
+        }
+      }
+
+      async function PiniTreePluginMode() {
+
+        if('{{.URL}}'.startsWith('{')) {
+          // not loaded as PiniTree plugin
+          return false;
+        }
+
+        console.log('Working as PiniTree plugin');
+        // console.log('Working as PiniTree plugin, file:', '{{.URL}}');
+
+        const response = await fetch("{{.URL}}");
+        const data = await response.json();
+
+        guid = data.id;
+        document.querySelector('#guid').innerHTML = guid;
+
+        document.querySelector('#mt-src-lang').value = data.sourceLang;
+        document.querySelector('#mt-dst-lang').value = data.targetLang;
+
+        let doc, mentions;
+
+        const documentURL = data.id && `/api/documents/${data.id}`;
+        if(documentURL) {
+          const response = await fetch(documentURL);
+          doc = await response.json();
+        }
+
+        const mentionsURL = data.id && `/api/documents/${data.id}/mentions`;
+        if(mentionsURL) {
+          const response = await fetch(mentionsURL);
+          mentions = await response.json();
+        }
+
+        // console.debug('DOCUMENT:', doc);
+        // console.debug('MENTIONS:', mentions);
+
+        // merge mentions with transcript
+
+        const originalTextMarker = 'Original Text:\n';
+        const targetTextMarker = 'Target Text:\n';
+
+        let originalTextOffset = doc.text.indexOf(originalTextMarker);
+        let targetTextOffset = doc.text.indexOf(targetTextMarker);
+
+        if(originalTextOffset !== -1) {
+          originalTextOffset += originalTextMarker.length;
+        }
+        if(targetTextOffset !== -1) {
+          targetTextOffset += targetTextMarker.length;
+        }
+
+        // console.debug(`Original text offset: ${originalTextOffset}, target text offset: ${targetTextOffset}`);
+
+        const originalTextMentions = [];
+        const targetTextMentions = [];
+
+        for(const mention of mentions) {
+          if(targetTextOffset !== -1 && mention.start >= targetTextOffset) {
+            mention.start -= targetTextOffset;
+            mention.end -= targetTextOffset;
+            targetTextMentions.push(mention);
+          } else if(originalTextOffset !== -1 && mention.start >= originalTextOffset) {
+            mention.start -= originalTextOffset;
+            mention.end -= originalTextOffset;
+            originalTextMentions.push(mention);
+          }
+        }
+
+        // clear entity information
+        for(const paragraph of data.transcript) {
+          for(const span of paragraph.spans) {
+            if(span.entities) {
+              delete span.entities;
+            }
+          }
+        }
+        for(const paragraph of data.translated) {
+          for(const span of paragraph.spans) {
+            if(span.entities) {
+              delete span.entities;
+            }
+          }
+        }
+
+        mergeMentions(data.transcript, originalTextMentions);
+        mergeMentions(data.translated, targetTextMentions);
+
+        // console.debug('Original Text Mentions:', originalTextMentions);
+        // console.debug('Target Text Mentions:', targetTextMentions);
+
+
+        const transcript = { paragraphs: data.transcript };
+        const translated = { paragraphs: data.translated };
+
+        const mediaURL = data.mediaFileID && `/api/files/${data.mediaFileID}/content`;
+
+        mediaFileID = data.mediaFileID;
+        voiceOverFileID = data.voiceOverFileID;
+
+        mediaPublished = mediaFileID && mediaFileID.length > 0 || false;
+
+        {
+          const response = await fetch(mediaURL);
+          if(response.ok) {
+            file = await response.blob();
+          }
+        }
+
+        let waveform, voiceOverURL;
+
+        if(data.voiceOverFileID) {
+          voiceOverURL = `/api/files/${data.voiceOverFileID}/content`;
+          if(mediaURL) {
+            voiceOverAudio.src = voiceOverURL;
+            voiceOverVideo.muted = true;
+            waveform = voiceOverURL;
+          } else {
+            voiceOverVideo.muted = false;
+          }
+        }
+
+        setASREngine(data.asrEngine);
+        setMTEngine(data.mtEngine);
+        setVoiceOverEngine(data.voEngine);
+        setSummaryEngine(data.summaryEngine);
+
+        app.load({ audio: mediaURL, transcript });
+
+        if(!mediaURL && voiceOverURL) {
+          appMT.load({ audio: voiceOverURL, transcript: translated });
+        } else {
+          appMT.load({ audio: mediaURL, transcript: translated, waveform });
+        }
+
+        return true;
+      }
+
+      let asrEngine, mtEngine, voEngine, summaryEngine;
+
+      asrEngine = 'asr';
+      mtEngine = 'mt';
+      voEngine = 'pt:leila endruweit';
+      summaryEngine = 'default';
+
+      function setASREngine(engine) {
+        let title = '';
+        if(engine) {
+          asrEngine = engine
+        } else {
+          engine = asrEngine;
+        }
+        if(engine === 'asr') {
+          title = 'Kaldi';
+        } else if(engine === 'w2v') {
+          title = 'Wave2Vec';
+        }
+        document.querySelector('#asr-engine-title').innerHTML = title;
+      }
+
+      function setMTEngine(engine) {
+        let title = '';
+        if(engine) {
+          mtEngine = engine
+        } else {
+          engine = mtEngine;
+        }
+        if(engine === 'mt') {
+          title = 'M2M-100';
+        } else if(engine === 'huggingface') {
+          title = 'HuggingFace';
+        }
+        document.querySelector('#mt-engine-title').innerHTML = title;
+      }
+
+      function setVoiceOverEngine(engine) {
+        let title = '';
+        if(engine) {
+          voEngine = engine
+        } else {
+          engine = voEngine;
+        }
+        if(engine.startsWith('pt:')) {
+          const speaker = engine.substring(3);
+          title = `PT: ${speaker}`;
+        } else if(engine === 'default') {
+          title = 'Default';
+        // } else if(engine === 'huggingface') {
+        //   title = 'HuggingFace';
+        }
+
+        document.querySelector('#voiceover-engine-title').innerHTML = title;
+      }
+
+      function setSummaryEngine(engine) {
+        let title = '';
+        if(engine) {
+          summaryEngine = engine
+        } else {
+          engine = summaryEngine;
+        }
+        if(engine === 'default') {
+          title = 'Default';
+        // } else if(engine === 'huggingface') {
+        //   title = 'HuggingFace';
+        }
+        document.querySelector('#summary-engine-title').innerHTML = title;
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+
+        // set defaults
+        setASREngine();
+        setMTEngine();
+        setVoiceOverEngine();
+        setSummaryEngine();
+
+        await loadConfig();
+        app.load({ audio: null, transcript: { paragraphs: [] } });
+        document.querySelector('body').classList.remove('hidden-x');
+        document.querySelector('#publish').addEventListener('click', () => { publish(false); });
+        document.querySelector('#upload-file').addEventListener('click', uploadFile);
+        document.querySelector('#file-selector').addEventListener('change', fileSelected);
+        // document.querySelector('#mt-src-lang').addEventListener('change', sourceLanguageChanged);
+        // document.querySelector('#mt-dst-lang').addEventListener('change', targetLanguageChanged);
+        document.querySelector('#transcribe').addEventListener('click', transcribe);
+        document.querySelector('#translate').addEventListener('click', translate);
+        document.querySelector('#voiceover').addEventListener('click', voiceover);
+        document.querySelector('#guid').innerHTML = guid;
+
+        document.querySelector('#select-asr-kaldi').addEventListener('click', () => { setASREngine('asr'); });
+        document.querySelector('#select-asr-wave2vec').addEventListener('click', () => { setASREngine('w2v'); });
+        document.querySelector('#select-mt-mt').addEventListener('click', () => { setMTEngine('mt'); });
+        document.querySelector('#select-mt-huggingface').addEventListener('click', () => { setMTEngine('huggingface'); });
+
+        // document.querySelector('#select-vo-default').addEventListener('click', () => { setVoiceOverEngine('default'); });
+
+        const ptEngineSpeakers = [
+          'alexandre schossler',
+          'bruno lupion',
+          'clarissa nehere',
+          'leila endruweit',
+          'marcio damascenoe',
+          'philip verminnen',
+          'renate krieger',
+          'roberto crescenti',
+        ];
+
+        let i = 1;
+        for(const speaker of ptEngineSpeakers) {
+          console.log(`select-vo-pt-speaker${i}`);
+          document.querySelector(`#select-vo-pt-speaker${i}`).addEventListener('click', () => { setVoiceOverEngine(`pt:${speaker}`); });
+          i++;
+        }
+
+        document.querySelector('#select-summary-default').addEventListener('click', () => { setSummaryEngine('default'); });
+
+        document.querySelector('#workers-url').href = `${backendURL}/api/workers`;
+        const greenDot = document.querySelector('#green-dot');
+        if(greenDot) {
+          greenDot.src = `${backendURL}/green-dot.png`;
+        }
+
+        app.load({ audio: null, transcript: { paragraphs: [] } });
+        appMT.load({ audio: null, transcript: { paragraphs: [] } });
+        // setup voiceover audio
+        voiceOverAudio = document.querySelector('#voiceover-audio');
+        voiceOverVideo = appMT.$el.querySelector('video');
+        syncVideoAudio(voiceOverVideo, voiceOverAudio);
+
+        PiniTreePluginMode();
+
+        console.log(location.hash)
+        if(location.hash == '#red') {
+          document.querySelector('body').classList.add('ui-red');
+        }
+      });
+    </script>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        margin: 0px;
+        padding: 0px;
+        position: relative;
+      }
+      body.ui-red {
+        background-color: #ffd4d4;
+      }
+      #app::before {
+        content: "Original";
+        top: -16px;
+        position: relative;
+        font-size: 8px;
+      }
+      #app-mt::before {
+        content: "Translated, enriched content";
+        top: -16px;
+        position: relative;
+        font-size: 8px;
+      }
+      #app {
+        /* width: 100%; */
+        /* height: 100%; */
+        margin: 10px;
+        position: absolute;
+        top: 52px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        overflow: visible;
+        right: 50%;
+      }
+      #app-mt {
+        /* width: 100%; */
+        /* height: 100%; */
+        margin: 10px;
+        position: absolute;
+        top: 52px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        overflow: visible;
+        left: 50%;
+      }
+      .editor-wrapper > .header {
+        display: none;
+      }
+      #top-spinner {
+        /* display: inline-block; */
+        display: none;
+        position: absolute;
+        /* position: relative; */
+        top: 4px;
+        /* left: 120px; */
+        left: -44px;
+        width: 34px;
+        height: 34px;
+      }
+      #top-spinner > .label {
+        display: none;
+        position: relative;
+        left: 8px;
+        top: -6px;
+      }
+      #guid {
+        font-size: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .invalid {
+        color: red;
+      }
+    </style>
+  </body>
+</html>
